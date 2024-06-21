@@ -183,7 +183,11 @@ class _RegisterPageState extends State<RegisterPage> {
       final user = await UserService().createUser(_nameController.text,
           _emailController.text, _passwordController.text);
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => HomePage(user: user)),
+        MaterialPageRoute(
+            builder: (_) => HomePage(
+                  user: user,
+                  updateUser: (User) {},
+                )),
       );
     } catch (e) {
       // Handle errors, possibly show an alert dialog

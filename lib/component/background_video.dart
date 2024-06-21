@@ -4,11 +4,13 @@ import 'package:video_player/video_player.dart';
 class BackgroundVideo extends StatefulWidget {
   final String videoPath;
   final BoxFit fit;
+  final double playbackSpeed; // Playback speed parameter with default value
 
   const BackgroundVideo({
     Key? key,
     required this.videoPath,
-    this.fit = BoxFit.cover, // Default to BoxFit.cover
+    this.fit = BoxFit.cover,
+    this.playbackSpeed = 1.0, // Default playback speed is normal (1x)
   }) : super(key: key);
 
   @override
@@ -27,10 +29,18 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
 
   void _initializeVideoPlayer() {
     _controller = VideoPlayerController.asset(widget.videoPath);
-    _initializeVideoPlayerFuture = _controller.initialize();
     _controller.setVolume(1.0);
     _controller.setLooping(true);
-    _controller.play();
+
+    // Check if playbackSpeed is provided before setting it
+    if (widget.playbackSpeed != null) {
+      _controller.setPlaybackSpeed(widget.playbackSpeed);
+    }
+
+    _initializeVideoPlayerFuture = _controller.initialize().then((_) {
+      // Ensure the video starts playing when initialized
+      _controller.play();
+    });
   }
 
   @override
@@ -41,8 +51,8 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
 
   @override
   void deactivate() {
-    // This method is called when the widget is removed from the tree, e.g., navigating to another page.
-    _controller.pause(); // Pause the video
+    // Pause video when widget is removed from the tree (e.g., navigating away)
+    _controller.pause();
     super.deactivate();
   }
 
@@ -54,7 +64,7 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
         if (snapshot.connectionState == ConnectionState.done) {
           return SizedBox.expand(
             child: FittedBox(
-              fit: widget.fit, // Use the fit parameter passed to the widget
+              fit: widget.fit,
               child: SizedBox(
                 width: _controller.value.size.width,
                 height: _controller.value.size.height,

@@ -134,7 +134,10 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => HomePage(user: widget.user),
+                              builder: (context) => HomePage(
+                                user: widget.user,
+                                updateUser: (User) {},
+                              ),
                             ),
                           );
                         }

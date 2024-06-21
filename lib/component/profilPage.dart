@@ -1,3 +1,4 @@
+import 'package:blindtestlol_flutter_app/component/gameOverScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:blindtestlol_flutter_app/component/SignalerProblemePage.dart';
 import 'package:blindtestlol_flutter_app/component/boutiquePage.dart';
@@ -11,7 +12,11 @@ import 'comptePage.dart'; // Import account page
 class ProfilPage extends StatelessWidget {
   final User user;
 
-  const ProfilPage({Key? key, required this.user}) : super(key: key);
+  const ProfilPage(
+      {Key? key,
+      required this.user,
+      required void Function(User newUser) updateUser})
+      : super(key: key);
 
   void _deconnexion(BuildContext context) {
     // Implement logout logic here
@@ -69,6 +74,7 @@ class ProfilPage extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (context) => ComptePage(
                         user: user,
+                        updateUser: (User p1) {},
                       ),
                     ),
                   );
@@ -84,6 +90,7 @@ class ProfilPage extends StatelessWidget {
                     MaterialPageRoute(
                         builder: (context) => BoutiquePage(
                               user: user,
+                              updateUser: (User) {},
                             )),
                   );
                 },
@@ -106,6 +113,23 @@ class ProfilPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => SignalerProblemePage(),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: 8.0),
+              _customButton(
+                text: 'GameOver',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GameOverScreen(
+                        score: 1800,
+                        combo: 3,
+                        mastery: 'Beginner',
+                        user: user,
+                      ),
                     ),
                   );
                 },

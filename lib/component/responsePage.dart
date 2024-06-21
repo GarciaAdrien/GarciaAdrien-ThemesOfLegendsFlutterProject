@@ -104,7 +104,7 @@ class ResponsePage extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              userProposition,
+                              userProposition.toUpperCase(),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,

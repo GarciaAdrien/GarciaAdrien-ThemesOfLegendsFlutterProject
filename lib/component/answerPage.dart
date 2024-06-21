@@ -41,8 +41,7 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
   final _formKey = GlobalKey<FormState>();
   final GameService gameService = GameService('http://localhost:8080');
   final AudioPlayer _audioPlayer = AudioPlayer();
-  final TextEditingController _propositionController =
-      TextEditingController(text: "NOM DE LA MUSIQUE");
+  final TextEditingController _propositionController = TextEditingController();
   final TextEditingController _typeController =
       TextEditingController(text: "TYPE DE LA MUSIQUE");
   final TextEditingController _dateController = TextEditingController();
@@ -75,8 +74,8 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
       duration: Duration(milliseconds: 500),
     );
     _animation = Tween<double>(
-      begin: widget.totalRounds > 0 ? currentRound / widget.totalRounds : 0,
-      end: widget.totalRounds > 0 ? currentRound / widget.totalRounds : 0,
+      begin: (currentRound - 1) / widget.totalRounds,
+      end: currentRound / widget.totalRounds,
     ).animate(_animationController);
     _propositionController.text = "NOM DE LA MUSIQUE";
     _typeController.text = "TYPE DE LA MUSIQUE";
@@ -128,15 +127,21 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: CountdownWidget(
-            seconds: 5,
-            onComplete: () {
-              Navigator.of(context).pop();
-              _audioPlayer.play(AssetSource('song/$musicId.mp3'));
-              _startRoundCountdown();
-            },
+        return AbsorbPointer(
+          absorbing:
+              false, // Pour empêcher les interactions avec le contenu derrière
+          child: Opacity(
+            opacity: 0.0, // Opacité à 0 pour rendre la modale invisible
+            child: Dialog(
+              child: ScoreComboCountdownWidget(
+                seconds: 0,
+                onComplete: () {
+                  Navigator.of(context).pop();
+                  _audioPlayer.play(AssetSource('song/$musicId.mp3'));
+                  _startRoundCountdown();
+                },
+              ),
+            ),
           ),
         );
       },
@@ -153,15 +158,21 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: ScoreComboCountdownWidget(
-            seconds: 5,
-            onComplete: () {
-              Navigator.of(context).pop();
-              _audioPlayer.play(AssetSource('song/$musicId.mp3'));
-              _startRoundCountdown();
-            },
+        return AbsorbPointer(
+          absorbing:
+              false, // Pour empêcher les interactions avec le contenu derrière
+          child: Opacity(
+            opacity: 0.0, // Opacité à 0 pour rendre la modale invisible
+            child: Dialog(
+              child: ScoreComboCountdownWidget(
+                seconds: 0,
+                onComplete: () {
+                  Navigator.of(context).pop();
+                  _audioPlayer.play(AssetSource('song/$musicId.mp3'));
+                  _startRoundCountdown();
+                },
+              ),
+            ),
           ),
         );
       },
@@ -198,7 +209,7 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
       final playRoundResponse = await gameService.playRound(widget.gameId);
 
       setState(() {
-        currentRound = apiResponse.round;
+        currentRound = apiResponse.round + 1;
         currentScore = apiResponse.player.score;
         currentCombo = apiResponse.player.combo;
         _animation = Tween<double>(
@@ -209,10 +220,12 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
         showRoundCountdown = false;
 
         // Set corrected values from the previous playRoundResponse
-        previousMusicType = apiResponse.musicPlayed[currentRound - 1].type;
-        previousMusicDate = apiResponse.musicPlayed[currentRound - 1].date;
-        previousCorrectedName = apiResponse.musicPlayed[currentRound - 1].name;
-        previousMusicToken = apiResponse.musicPlayed[currentRound - 1].token;
+        previousMusicType = apiResponse.musicPlayed[apiResponse.round - 1].type;
+        previousMusicDate = apiResponse.musicPlayed[apiResponse.round - 1].date;
+        previousCorrectedName =
+            apiResponse.musicPlayed[apiResponse.round - 1].name;
+        previousMusicToken =
+            apiResponse.musicPlayed[apiResponse.round - 1].token;
 
         // Update the current music info for the next round
         correctedName = playRoundResponse?.name;
@@ -245,6 +258,7 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
                       score: apiResponse.player.score,
                       combo: apiResponse.player.combo,
                       mastery: apiResponse.player.mastery,
+                      user: widget.user,
                     ),
                   ),
                 );
@@ -289,6 +303,9 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
 
   @override
   Widget build(BuildContext context) {
+    print('Nom de la musique : ${widget.initialMusicName}');
+    print('Type de la musique : ${widget.initialMusicType}');
+    print('Date de la musique : ${widget.initialMusicDate}');
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -309,7 +326,7 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
             padding: const EdgeInsets.all(8.0),
             child: showRoundCountdown
                 ? CountdownWidget(
-                    seconds: 60,
+                    seconds: 30,
                     onComplete: _onCountdownComplete,
                   )
                 : SizedBox.shrink(),

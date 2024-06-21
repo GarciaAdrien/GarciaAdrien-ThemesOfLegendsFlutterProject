@@ -1,5 +1,6 @@
-import 'package:blindtestlol_flutter_app/services/userServices.dart';
+import 'package:blindtestlol_flutter_app/component/homePage.dart';
 import 'package:flutter/material.dart';
+import 'package:blindtestlol_flutter_app/services/userServices.dart';
 import 'package:blindtestlol_flutter_app/utils/utils.dart';
 import 'package:blindtestlol_flutter_app/models/models.dart';
 import 'package:blindtestlol_flutter_app/component/background_video.dart';
@@ -7,9 +8,11 @@ import 'package:blindtestlol_flutter_app/component/background_video.dart';
 import 'AnimatedPulse.dart'; // Assurez-vous de remplacer le chemin par celui de votre fichier
 
 class ComptePage extends StatefulWidget {
-  final User user;
+  User user;
+  final Function(User) updateUser;
 
-  const ComptePage({required this.user});
+  ComptePage({Key? key, required this.user, required this.updateUser})
+      : super(key: key);
 
   @override
   _ComptePageState createState() => _ComptePageState();
@@ -25,15 +28,14 @@ class _ComptePageState extends State<ComptePage>
 
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
+  late List<Avatar> avatars = [];
 
   @override
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.user.name);
-    emailController =
-        TextEditingController(text: widget.user.email); // Correction ici
+    emailController = TextEditingController(text: widget.user.email);
 
-    // Animation setup
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
@@ -44,6 +46,7 @@ class _ComptePageState extends State<ComptePage>
         curve: Curves.easeInOut,
       ),
     );
+    _loadAvatars();
   }
 
   @override
@@ -54,6 +57,159 @@ class _ComptePageState extends State<ComptePage>
     confirmPasswordController.dispose();
     _animationController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadAvatars() async {
+    try {
+      List<Avatar> fetchedAvatars =
+          await UserService().getAllAvatars(widget.user.uid, true);
+
+      setState(() {
+        avatars = fetchedAvatars;
+      });
+    } catch (e) {
+      print('Failed to load avatars: $e');
+    }
+  }
+
+  void _showAvatarGrid() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          insetPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.colorTextTitle, width: 2.0),
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Stack(
+                    children: [
+                      // Adjust alignment to shift the close button
+                      Positioned(
+                        top: 5.0,
+                        right: 5.0,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context); // Close the modal
+                          },
+                          child: Icon(Icons.close),
+                        ),
+                      ),
+                      Center(
+                        child: Text(
+                          'Choisissez votre avatar',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10.0), // Spacer between title and grid
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: GridView.builder(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16.0,
+                          mainAxisSpacing: 16.0,
+                          childAspectRatio: 0.8,
+                        ),
+                        itemCount: avatars.length,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () async {
+                              try {
+                                await UserService().changeAvatar(
+                                  widget.user.uid,
+                                  avatars[index].id,
+                                );
+                                User updatedUser = await UserService()
+                                    .getUser(widget.user.uid);
+                                setState(() {
+                                  widget.user = updatedUser;
+                                });
+                                Navigator.pop(context);
+                              } catch (e) {
+                                print('Failed to change avatar: $e');
+                                // Handle error as needed
+                              }
+                            },
+                            child: _buildGridItem(avatars[index]),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGridItem(Avatar avatar) {
+    String imagePath = 'assets/images/legendes/${avatar.token}.png';
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.colorNoirHextech,
+        borderRadius: BorderRadius.circular(20.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8.0,
+            offset: Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: AppColors.colorNoirHextech,
+          width: 1.0,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+              child: Image.asset(
+                imagePath,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: AppColors.colorNoirHextech,
+              borderRadius:
+                  BorderRadius.vertical(bottom: Radius.circular(20.0)),
+            ),
+            child: Text(
+              avatar.token,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.white,
+                fontFamily: 'CustomFont2',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -67,15 +223,13 @@ class _ComptePageState extends State<ComptePage>
       body: Stack(
         children: [
           Transform.translate(
-            offset: Offset(-150,
-                0), // Déplace le BackgroundVideo vers la gauche de 100 pixels
+            offset: Offset(-150, 0),
             child: const BackgroundVideo(
               videoPath: Mp4Assets.imageBackgroundProfil,
             ),
           ),
           Container(
-            color: Colors.black.withOpacity(
-                0.5), // Couche transparente pour rendre le contenu plus lisible
+            color: Colors.black.withOpacity(0.5),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -85,26 +239,25 @@ class _ComptePageState extends State<ComptePage>
                   Stack(
                     alignment: Alignment.bottomRight,
                     children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: AssetImage("assets/images/legendes/" +
-                            widget.user.avatarToken +
-                            ".png"),
+                      GestureDetector(
+                        onTap: _showAvatarGrid,
+                        child: CircleAvatar(
+                          radius: 50,
+                          backgroundImage: AssetImage(
+                              "assets/images/legendes/" +
+                                  widget.user.avatarToken +
+                                  ".png"),
+                        ),
                       ),
                       Positioned(
                         right: -30,
-                        bottom:
-                            -20, // Décalage de 20 pixels vers le haut par rapport au bas de l'image de profil
+                        bottom: -20,
                         child: AnimatedPulse(
                           child: GestureDetector(
-                            onTap: () {
-                              // Action lorsque l'utilisateur appuie sur l'icône pour modifier l'avatar
-                              print('Modifier l\'avatar');
-                              // Ajoutez ici la logique pour modifier l'avatar
-                            },
+                            onTap: _showAvatarGrid,
                             child: Image.asset(
                               ImageAssets.imageCurseur,
-                              width: 80, // Taille de l'image de l'icône
+                              width: 80,
                               height: 80,
                             ),
                           ),
@@ -130,8 +283,7 @@ class _ComptePageState extends State<ComptePage>
                   Expanded(
                     child: Align(
                       alignment: Alignment.bottomCenter,
-                      child:
-                          _buildSaveButton(), // Utilisation du bouton personnalisé
+                      child: _buildSaveButton(),
                     ),
                   ),
                 ],
@@ -144,7 +296,6 @@ class _ComptePageState extends State<ComptePage>
     );
   }
 
-  // Méthode pour construire le bouton personnalisé
   Widget _buildSaveButton() {
     return ElevatedButton(
       onPressed: () async {
@@ -157,12 +308,27 @@ class _ComptePageState extends State<ComptePage>
             User updatedUser =
                 await userService.updatePassword(widget.user.uid, newPassword);
 
+            // Update user info directly in widget
+            setState(() {
+              widget.user = updatedUser;
+            });
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Mot de passe mis à jour avec succès.'),
               ),
             );
-            setState(() {});
+
+            // Return to HomePage with updated user
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePage(
+                  user: updatedUser,
+                  updateUser: widget.updateUser,
+                ),
+              ),
+            );
           } catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -183,16 +349,28 @@ class _ComptePageState extends State<ComptePage>
               content: Text('Modifications sauvegardées avec succès.'),
             ),
           );
+
+          // If no password change, return to HomePage with current user
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(
+                user: widget.user,
+                updateUser: widget.updateUser,
+              ),
+            ),
+          );
         }
       },
       style: ElevatedButton.styleFrom(
         foregroundColor: AppColors.colorTextTitle,
-        backgroundColor:
-            AppColors.colorNoirHextech, // Couleur du texte du bouton
+        backgroundColor: AppColors.colorNoirHextech,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0), // Bord arrondi
+          borderRadius: BorderRadius.circular(10.0),
           side: BorderSide(
-              color: AppColors.colorTextTitle, width: 2.0), // Bordure
+            color: AppColors.colorTextTitle,
+            width: 2.0,
+          ),
         ),
         padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 24.0),
       ),
@@ -206,65 +384,41 @@ class _ComptePageState extends State<ComptePage>
     );
   }
 
-  // Widget pour construire un champ éditable
   Widget _buildEditableField(String label, TextEditingController controller,
       {bool isPassword = false, bool isEditable = true}) {
-    return Container(
-      padding: EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
-        color: AppColors.colorNoirHextech.withOpacity(0.8),
-        borderRadius: BorderRadius.circular(10.0),
-        border: Border.all(
-          color: AppColors.colorTextTitle,
-          width: 2.0,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 16,
-              color: AppColors.colorTextTitle,
-              fontFamily: 'CustomFont2',
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+            fontFamily: 'CustomFont2',
           ),
-          isEditable
-              ? TextField(
-                  controller: controller,
-                  obscureText: isPassword,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'CustomFont2',
-                  ),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: isPassword
-                        ? 'Modifier votre mot de passe'
-                        : 'Modifier votre $label',
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                    ),
-                  ),
-                )
-              : SizedBox(
-                  height:
-                      48.0, // Ajustez cette hauteur pour correspondre à celle des TextFields
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      controller.text,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'CustomFont2',
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-        ],
-      ),
+        ),
+        SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          obscureText: isPassword,
+          enabled: isEditable,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.black45,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding:
+                EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+          ),
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+            fontFamily: 'CustomFont2',
+          ),
+        ),
+      ],
     );
   }
 }

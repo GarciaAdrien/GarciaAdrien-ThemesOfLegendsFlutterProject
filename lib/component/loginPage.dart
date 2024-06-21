@@ -194,7 +194,11 @@ class _LoginPageState extends State<LoginPage> {
       final user = await UserService()
           .connectUser(_nameController.text, _passwordController.text);
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => HomePage(user: user)),
+        MaterialPageRoute(
+            builder: (_) => HomePage(
+                  user: user,
+                  updateUser: (User) {},
+                )),
       );
     } catch (e) {
       setState(() => _isLoading = false);

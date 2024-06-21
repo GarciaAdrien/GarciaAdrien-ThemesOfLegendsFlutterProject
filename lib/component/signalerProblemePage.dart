@@ -159,23 +159,36 @@ class SignalerProblemePage extends StatelessWidget {
   }
 
   void _sendEmail(BuildContext context) async {
-    final Uri uri = Uri(
-      scheme: 'mailto',
-      path: 'adriengarciaperso@gmail.com',
-      queryParameters: {
-        'subject': subjectController.text,
-        'body':
-            '${nameController.text} vous signale un problème :\n\n${messageController.text}',
-      },
+    final String email = 'adriengarciaperso@gmail.com';
+    final String subject = Uri.encodeComponent(subjectController.text);
+    final String body = Uri.encodeComponent(
+      '${nameController.text} vous signale un problème :\n\n${messageController.text}',
     );
 
-    if (await canLaunch(uri.toString())) {
-      await launch(uri.toString());
-    } else {
+    final Uri uri = Uri(
+      scheme: 'mailto',
+      path: email,
+      query: 'subject=$subject&body=$body',
+    );
+
+    try {
+      if (await canLaunch(uri.toString())) {
+        await launch(uri.toString());
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Impossible d\'envoyer l\'e-mail. Veuillez réessayer plus tard.',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Erreur lors de l\'envoi de l\'e-mail: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Impossible d\'envoyer l\'e-mail. Veuillez réessayer plus tard.',
+            'Erreur lors de l\'envoi de l\'e-mail. Veuillez réessayer plus tard.',
           ),
         ),
       );

@@ -64,7 +64,7 @@ class UserService {
     }
   }
 
-  Future<List<Avatar>> getAllAvatars(String userUid) async {
+  Future<List<Avatar>> getAllAvatars(String userUid, bool isSelectable) async {
     final url = Uri.parse('${baseUrl}user/avatars?uid=$userUid');
 
     final response = await http.get(url);
@@ -74,10 +74,15 @@ class UserService {
       List<Avatar> avatars =
           List<Avatar>.from(list.map((model) => Avatar.fromJson(model)));
 
-      // Tri des avatars par prix croissant
-      avatars.sort((a, b) => a.price.compareTo(b.price));
+      // Définir la liste des avatars en fonction de la valeur de isSelectable
+      List<Avatar> filteredAvatars = isSelectable
+          ? avatars.where((avatar) => avatar.selectable).toList()
+          : avatars.where((avatar) => !avatar.selectable).toList();
 
-      return avatars;
+      // Tri des avatars par prix croissant
+      filteredAvatars.sort((a, b) => a.price.compareTo(b.price));
+
+      return filteredAvatars;
     } else {
       throw Exception('Failed to load avatars. Status: ${response.statusCode}');
     }
@@ -95,6 +100,22 @@ class UserService {
     } else {
       // Purchase failed
       throw Exception('Failed to buy avatar. Status: ${response.statusCode}');
+    }
+  }
+
+  Future<void> changeAvatar(String userUid, int avatarId) async {
+    final url =
+        Uri.parse('${baseUrl}user/change-avatar?uid=$userUid&avatar=$avatarId');
+
+    final response = await http.put(url);
+
+    if (response.statusCode == 200) {
+      // Successful avatar change
+      print('Avatar changed successfully');
+    } else {
+      // Avatar change failed
+      throw Exception(
+          'Failed to change avatar. Status: ${response.statusCode}');
     }
   }
 }

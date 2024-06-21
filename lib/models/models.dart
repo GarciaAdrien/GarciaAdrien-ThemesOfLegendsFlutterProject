@@ -184,7 +184,7 @@ class User {
   final String name;
   final String uid;
   final String email;
-  final String avatarToken;
+  String avatarToken;
   final int gamePlayed;
   final List<HighScore> highScore;
   int totalScore;
@@ -231,51 +231,19 @@ class User {
   }
 }
 
-class UserAvatar {
-  final int id;
-  final User user;
-  final int id_avatar;
-  final bool isSelectable;
-  final bool isSelected;
-
-  UserAvatar({
-    required this.id,
-    required this.user,
-    required this.id_avatar,
-    required this.isSelectable,
-    required this.isSelected,
-  });
-
-  factory UserAvatar.fromJson(Map<String, dynamic> json) {
-    return UserAvatar(
-      id: json['id_liaison_avatar_utilisateur'],
-      user: User.fromJson(json['user']),
-      id_avatar: json['id_avatar'],
-      isSelectable: json['lau_selectionnable'],
-      isSelected: json['lau_selectione'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id_liaison_avatar_utilisateur': id,
-      'user': user.toJson(),
-      'avatar': id_avatar,
-      'lau_selectionnable': isSelectable,
-      'lau_selectione': isSelected,
-    };
-  }
-}
-
 class Avatar {
   final int id;
   final String token;
   final int price;
+  final bool selectable;
+  final bool selected;
 
   Avatar({
     required this.id,
     required this.token,
     required this.price,
+    required this.selectable,
+    required this.selected,
   });
 
   factory Avatar.fromJson(Map<String, dynamic> json) {
@@ -283,6 +251,8 @@ class Avatar {
       id: json['id'],
       token: json['token'],
       price: json['price'],
+      selectable: json['selectable'],
+      selected: json['selected'],
     );
   }
 }

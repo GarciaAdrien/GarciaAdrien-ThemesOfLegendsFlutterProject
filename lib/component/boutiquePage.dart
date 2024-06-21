@@ -1,3 +1,4 @@
+import 'package:blindtestlol_flutter_app/component/homePage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
@@ -9,8 +10,9 @@ import '../utils/utils.dart';
 
 class BoutiquePage extends StatefulWidget {
   final User user;
+  final Function(User) updateUser;
 
-  const BoutiquePage({required this.user});
+  const BoutiquePage({required this.user, required this.updateUser});
   @override
   _BoutiquePageState createState() => _BoutiquePageState();
 }
@@ -27,36 +29,47 @@ class _BoutiquePageState extends State<BoutiquePage> {
   Future<void> _loadAvatars() async {
     try {
       List<Avatar> fetchedAvatars =
-          await UserService().getAllAvatars(widget.user.uid);
+          await UserService().getAllAvatars(widget.user.uid, false);
 
       setState(() {
         avatars = fetchedAvatars;
       });
-
-      // Print avatar tokens for verification
-      for (var avatar in fetchedAvatars) {
-        print('${avatar.token}');
-      }
     } catch (e) {
       print('Failed to load avatars: $e');
-      // Handle error loading avatars
     }
   }
 
   Future<void> _handleBuyAvatar(String imageName, int avatarId) async {
     try {
-      await UserService().buyAvatar(widget.user.uid, avatarId);
+      await UserService().buyAvatar(
+        widget.user.uid,
+        avatarId,
+      );
 
-      // Show success message
+      // Mettre à jour l'utilisateur avec le nouveau score
+      User updatedUser = await UserService().getUser(widget.user.uid);
+      widget.updateUser(updatedUser);
+
+      // Afficher un message de succès
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Vous avez acheté $imageName avec succès !'),
           duration: Duration(seconds: 2),
         ),
       );
-      // a voir - await UserService().getUser(widget.user.uid).then((User) => widget.user = User)
+
+      // Rediriger vers la page d'accueil avec la mise à jour de l'utilisateur
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(
+            user: updatedUser,
+            updateUser: widget.updateUser,
+          ),
+        ),
+      );
     } catch (e) {
-      // Handle error
+      // Gérer les erreurs
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erreur lors de l\'achat de $imageName : $e'),
