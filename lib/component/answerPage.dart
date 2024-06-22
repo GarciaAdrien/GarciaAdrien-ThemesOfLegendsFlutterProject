@@ -80,7 +80,7 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
     ).animate(_animationController);
     _typeController.text = "TYPE DE LA MUSIQUE";
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (mounted) {
         _showInitialCountdownAndPlayMusic(widget.initialMusicId);
       }
@@ -308,6 +308,7 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+   
         backgroundColor: AppColors.colorNoirHextech,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -332,38 +333,39 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
           ),
         ],
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        color: AppColors.colorNoirHextech,
-        child: Column(
-          children: [
-            AnimatedBuilder(
-              animation: _animation,
-              builder: (context, child) {
-                return SizedBox(
-                  height: 10,
-                  child: LinearProgressIndicator(
-                    value: _animation.value,
-                    backgroundColor: Colors.grey[800],
-                    color: AppColors.colorText,
-                    minHeight: 10,
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Manche $currentRound sur ${widget.totalRounds}',
-              style: const TextStyle(
-                color: AppColors.colorText,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Container(
+          width: double.infinity,
+          color: AppColors.colorNoirHextech,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              AnimatedBuilder(
+                animation: _animation,
+                builder: (context, child) {
+                  return SizedBox(
+                    height: 10,
+                    child: LinearProgressIndicator(
+                      value: _animation.value,
+                      backgroundColor: Colors.grey[800],
+                      color: AppColors.colorText,
+                      minHeight: 10,
+                    ),
+                  );
+                },
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Stack(
+              const SizedBox(height: 10),
+              Text(
+                'Manche $currentRound sur ${widget.totalRounds}',
+                style: const TextStyle(
+                  color: AppColors.colorText,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Stack(
                 alignment: Alignment.center,
                 children: [
                   Container(
@@ -383,137 +385,131 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
                   ),
                 ],
               ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextFormField(
-                        controller: _propositionController,
-                        style: const TextStyle(color: AppColors.colorText),
-                        decoration: InputDecoration(
-                          labelText: 'Quel est le nom de cette musique',
-                          labelStyle:
-                              TextStyle(color: AppColors.colorTextTitle),
-                          hintText: 'NOM DE LA MUSIQUE',
-                          hintStyle: TextStyle(
-                              color: AppColors.colorTextTitle.withOpacity(0.5)),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: AppColors.colorTextTitle),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: AppColors.colorTextTitle),
-                          ),
+              const SizedBox(height: 20),
+              Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextFormField(
+                      controller: _propositionController,
+                      style: const TextStyle(color: AppColors.colorText),
+                      decoration: InputDecoration(
+                        labelText: 'Quel est le nom de cette musique',
+                        labelStyle: TextStyle(color: AppColors.colorTextTitle),
+                        hintText: 'NOM DE LA MUSIQUE',
+                        hintStyle: TextStyle(
+                          color: AppColors.colorTextTitle.withOpacity(0.5),
                         ),
-                        validator: (value) =>
-                            value!.isEmpty ? 'Ce champ est requis' : null,
-                      ),
-                      const SizedBox(height: 20),
-                      DropdownButtonFormField<String>(
-                        value: _typeController.text.isNotEmpty
-                            ? _typeController.text
-                            : null,
-                        items: [
-                          DropdownMenuItem<String>(
-                            value: "TYPE DE LA MUSIQUE",
-                            child: Text("TYPE DE LA MUSIQUE"),
-                          ),
-                          DropdownMenuItem<String>(
-                            value: "SKIN",
-                            child: Text("SKIN"),
-                          ),
-                          DropdownMenuItem<String>(
-                            value: "EVENT",
-                            child: Text("EVENT"),
-                          ),
-                          DropdownMenuItem<String>(
-                            value: "CHAMPION",
-                            child: Text("CHAMPION"),
-                          ),
-                        ],
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            _typeController.text = newValue!;
-                          });
-                        },
-                        decoration: const InputDecoration(
-                          labelText: 'Quel est le type de cette musique ?',
-                          labelStyle:
-                              TextStyle(color: AppColors.colorTextTitle),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: AppColors.colorTextTitle),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: AppColors.colorTextTitle),
-                          ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: AppColors.colorTextTitle),
                         ),
-                        validator: (value) =>
-                            value == null ? 'Ce champ est requis' : null,
-                      ),
-                      const SizedBox(height: 20),
-                      DropdownButtonFormField<int>(
-                        value: _dateController.text.isNotEmpty
-                            ? int.tryParse(_dateController.text)
-                            : null,
-                        items: [
-                          DropdownMenuItem<int>(
-                            value: null,
-                            child: Text("DATE DE LA MUSIQUE"),
-                          ),
-                          ...List.generate(14, (index) => 2010 + index)
-                              .map((int value) {
-                            return DropdownMenuItem<int>(
-                              value: value,
-                              child: Text(value.toString()),
-                            );
-                          }).toList(),
-                        ],
-                        onChanged: (int? newValue) {
-                          setState(() {
-                            _dateController.text = newValue.toString();
-                          });
-                        },
-                        decoration: const InputDecoration(
-                          labelText: 'Quand est sortie cette musique ?',
-                          labelStyle:
-                              TextStyle(color: AppColors.colorTextTitle),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: AppColors.colorTextTitle),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: AppColors.colorTextTitle),
-                          ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: AppColors.colorTextTitle),
                         ),
-                        validator: (value) =>
-                            value == null ? 'Ce champ est requis' : null,
                       ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _submitResponse,
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: AppColors.colorNoirHextech,
-                          backgroundColor: AppColors.colorTextTitle,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 50, vertical: 15),
+                      validator: (value) =>
+                          value!.isEmpty ? 'Ce champ est requis' : null,
+                    ),
+                    const SizedBox(height: 20),
+                    DropdownButtonFormField<String>(
+                      value: _typeController.text.isNotEmpty
+                          ? _typeController.text
+                          : null,
+                      items: [
+                        DropdownMenuItem<String>(
+                          value: "TYPE DE LA MUSIQUE",
+                          child: Text("TYPE DE LA MUSIQUE"),
                         ),
-                        child: const Text('Envoyer'),
+                        DropdownMenuItem<String>(
+                          value: "SKIN",
+                          child: Text("SKIN"),
+                        ),
+                        DropdownMenuItem<String>(
+                          value: "EVENT",
+                          child: Text("EVENT"),
+                        ),
+                        DropdownMenuItem<String>(
+                          value: "CHAMPION",
+                          child: Text("CHAMPION"),
+                        ),
+                      ],
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _typeController.text = newValue!;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Quel est le type de cette musique ?',
+                        labelStyle: TextStyle(color: AppColors.colorTextTitle),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: AppColors.colorTextTitle),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: AppColors.colorTextTitle),
+                        ),
                       ),
-                    ],
-                  ),
+                      validator: (value) =>
+                          value == null ? 'Ce champ est requis' : null,
+                    ),
+                    const SizedBox(height: 20),
+                    DropdownButtonFormField<int>(
+                      value: _dateController.text.isNotEmpty
+                          ? int.tryParse(_dateController.text)
+                          : null,
+                      items: [
+                        DropdownMenuItem<int>(
+                          value: null,
+                          child: Text("DATE DE LA MUSIQUE"),
+                        ),
+                        ...List.generate(14, (index) => 2010 + index)
+                            .map((int value) {
+                          return DropdownMenuItem<int>(
+                            value: value,
+                            child: Text(value.toString()),
+                          );
+                        }).toList(),
+                      ],
+                      onChanged: (int? newValue) {
+                        setState(() {
+                          _dateController.text = newValue.toString();
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Quand est sortie cette musique ?',
+                        labelStyle: TextStyle(color: AppColors.colorTextTitle),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: AppColors.colorTextTitle),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: AppColors.colorTextTitle),
+                        ),
+                      ),
+                      validator: (value) =>
+                          value == null ? 'Ce champ est requis' : null,
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _submitResponse,
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: AppColors.colorNoirHextech,
+                        backgroundColor: AppColors.colorTextTitle,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                      ),
+                      child: const Text('Envoyer'),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

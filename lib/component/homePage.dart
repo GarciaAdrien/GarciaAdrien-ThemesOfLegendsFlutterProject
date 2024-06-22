@@ -31,7 +31,10 @@ class _HomePageState extends State<HomePage>
     super.initState();
     _user = widget.user;
     _widgetOptions = <Widget>[
-      AccueilPage(user: _user),
+      AccueilPage(
+        user: _user,
+        updateUser: (User) {},
+      ),
       ProfilPage(
           user: _user,
           updateUser:
@@ -52,7 +55,10 @@ class _HomePageState extends State<HomePage>
       setState(() {
         _user = updatedUser;
         _widgetOptions = <Widget>[
-          AccueilPage(user: _user),
+          AccueilPage(
+            user: _user,
+            updateUser: (User p1) {},
+          ),
           ProfilPage(
               user: _user,
               updateUser:

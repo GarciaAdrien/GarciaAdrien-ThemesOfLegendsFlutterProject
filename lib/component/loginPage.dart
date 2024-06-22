@@ -7,7 +7,7 @@ import 'package:blindtestlol_flutter_app/services/userServices.dart';
 import 'package:blindtestlol_flutter_app/utils/utils.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -26,7 +26,9 @@ class _LoginPageState extends State<LoginPage> {
       body: Stack(
         children: [
           const BackgroundVideo(
-              videoPath: Mp4Assets.videoPlayerController2, fit: BoxFit.cover),
+            videoPath: Mp4Assets.videoPlayerController2,
+            fit: BoxFit.cover,
+          ),
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -183,25 +185,50 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       validator: (value) =>
-          value!.isEmpty ? 'Please enter your $labelText' : null,
+          value!.isEmpty ? 'Veuillez entrer votre $labelText' : null,
     );
   }
 
   void _login() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+    });
+
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _isLoading = false);
+      return;
+    }
+
     try {
-      final user = await UserService()
-          .connectUser(_nameController.text, _passwordController.text);
+      final user = await UserService().connectUser(
+        _nameController.text,
+        _passwordController.text,
+      );
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-            builder: (_) => HomePage(
-                  user: user,
-                  updateUser: (User) {},
-                )),
+          builder: (_) => HomePage(
+            user: user,
+            updateUser: (User) {},
+          ),
+        ),
       );
     } catch (e) {
       setState(() => _isLoading = false);
+      // Afficher un SnackBar avec le message d'erreur
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Identifiant ou mot de passe incorrect',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 

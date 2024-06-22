@@ -171,14 +171,12 @@ class SignalerProblemePage extends StatelessWidget {
       query: 'subject=$subject&body=$body',
     );
 
-    // Boîte de dialogue de confirmation
     bool? result = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Ouvrir l\'application de messagerie'),
-          content: Text(
-              'Voulez-vous ouvrir l\'application de messagerie pour envoyer l\'e-mail ?'),
+          title: Text('Ouvrir l\'application Gmail'),
+          content: Text('Voulez-vous ouvrir Gmail pour envoyer l\'e-mail ?'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -193,7 +191,6 @@ class SignalerProblemePage extends StatelessWidget {
       },
     );
 
-    // Si l'utilisateur a confirmé
     if (result == true) {
       try {
         if (await canLaunch(uri.toString())) {
@@ -202,7 +199,7 @@ class SignalerProblemePage extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Impossible d\'ouvrir l\'application de messagerie. Veuillez vérifier si une application de messagerie est installée.',
+                'Impossible d\'ouvrir Gmail. Veuillez vérifier si Gmail est installé.',
               ),
             ),
           );

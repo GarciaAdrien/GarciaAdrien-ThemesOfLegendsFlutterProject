@@ -1,3 +1,4 @@
+import 'package:blindtestlol_flutter_app/services/userServices.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -5,14 +6,15 @@ import 'package:blindtestlol_flutter_app/component/answerPage.dart';
 import 'package:blindtestlol_flutter_app/models/models.dart';
 import 'package:blindtestlol_flutter_app/services/gameServices.dart';
 import 'package:flutter/widgets.dart';
-
 import '../utils/utils.dart';
 import 'modesDeJeuPage.dart';
 
 class AccueilPage extends StatefulWidget {
   final User user;
+  final Function(User) updateUser;
 
-  const AccueilPage({Key? key, required this.user}) : super(key: key);
+  const AccueilPage({Key? key, required this.user, required this.updateUser})
+      : super(key: key);
 
   @override
   _AccueilPageState createState() => _AccueilPageState();
@@ -22,7 +24,29 @@ class _AccueilPageState extends State<AccueilPage> {
   final GameService gameService =
       GameService('https://themes-of-legend-084997a82b0a.herokuapp.com');
   final AudioPlayer _audioPlayer = AudioPlayer();
+  late UserService _userService;
   String? currentGameId;
+
+  @override
+  void initState() {
+    super.initState();
+    _userService = UserService(); // Initialisez votre service utilisateur
+
+    // Utilisation de Future.microtask pour appeler la méthode asynchrone après l'initialisation de l'état
+    Future.microtask(() => _updateUser());
+  }
+
+  Future<void> _updateUser() async {
+    try {
+      User updatedUser = await _userService.getUser(widget.user.uid);
+      setState(() {
+        widget.updateUser(updatedUser);
+      });
+    } catch (e) {
+      // Gérez les erreurs ici si nécessaire
+      print("Erreur lors de la mise à jour de l'utilisateur: $e");
+    }
+  }
 
   void _playMusic(String musicId) {
     final filePath = 'song/$musicId.mp3';

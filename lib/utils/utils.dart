@@ -104,10 +104,6 @@ class ProblemAssets {
   static const problem = 'assets/images/logo/problem.png';
 }
 
-class Mp3Assets {
-  static const soundRemix = 'assets/musicBackground/remix.mp3';
-}
-
 class CountdownWidget extends StatefulWidget {
   final int seconds;
   final VoidCallback onComplete;

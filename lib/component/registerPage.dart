@@ -69,6 +69,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           controller: _emailController,
                           labelText: AppText.labelEmail,
                           obscureText: false,
+                          isEmailField: true, // Specify this is the email field
                         ),
                         const SizedBox(height: 20),
                         _buildTextField(
@@ -154,6 +155,7 @@ class _RegisterPageState extends State<RegisterPage> {
     required String labelText,
     required bool obscureText,
     Color? color,
+    bool isEmailField = false,
   }) {
     return TextFormField(
       controller: controller,
@@ -162,6 +164,10 @@ class _RegisterPageState extends State<RegisterPage> {
         color: color ?? AppColors.colorTextTitle,
         fontFamily: 'CustomFont1',
       ),
+      maxLength: isEmailField ? 50 : 12,
+      buildCounter: (BuildContext context,
+              {int? currentLength, int? maxLength, bool? isFocused}) =>
+          null,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: TextStyle(
@@ -172,21 +178,36 @@ class _RegisterPageState extends State<RegisterPage> {
         fillColor: AppColors.colorNoirHextech,
         border: const OutlineInputBorder(),
       ),
+      validator: (value) {
+        if (value!.isEmpty) {
+          return 'Ce champ est requis';
+        }
+        if (isEmailField &&
+            !(value.endsWith('@gmail.com') ||
+                value.endsWith('@outlook.com') ||
+                value.endsWith('@hotmail.com') ||
+                value.endsWith('@hotmail.fr'))) {}
+        return null;
+      },
     );
   }
 
   void _register() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate())
+      return; // Check if the form is valid
+
     setState(() => _isLoading = true);
+
     try {
       final user = await UserService().createUser(
         _nameController.text,
         _emailController.text,
         _passwordController.text,
       );
+
       setState(() => _isLoading = false);
 
-      // Afficher le SnackBar de confirmation
+      // Show a success Snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Utilisateur créé avec succès!'),
@@ -194,8 +215,9 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       );
 
-      // Attendre 2 secondes avant de naviguer
+      // Wait for 2 seconds before navigating
       await Future.delayed(const Duration(seconds: 2));
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => HomePage(
@@ -206,14 +228,26 @@ class _RegisterPageState extends State<RegisterPage> {
       );
     } catch (e) {
       setState(() => _isLoading = false);
+
+      // Show an error Snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Utilisateur créé avec succès!'),
-          duration: const Duration(seconds: 1),
+          content: const Text(
+            'Utilisateur créé avec succès!',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          backgroundColor: AppColors.colorNoirHextech,
+          duration: const Duration(seconds: 3),
         ),
       );
-      // Naviguer vers la page de login après une erreur
-      await Future.delayed(const Duration(seconds: 2));
+
+      // Navigate to the login page on error
+      await Future.delayed(const Duration(seconds: 3));
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => LoginPage()),
       );
