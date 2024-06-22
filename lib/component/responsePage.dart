@@ -1,5 +1,5 @@
-import 'package:blindtestlol_flutter_app/models/models.dart';
 import 'package:flutter/material.dart';
+import 'package:blindtestlol_flutter_app/models/models.dart';
 import 'package:blindtestlol_flutter_app/utils/utils.dart';
 
 class ResponsePage extends StatelessWidget {
@@ -29,10 +29,7 @@ class ResponsePage extends StatelessWidget {
   Widget _buildComboImage(int combo) {
     if (combo >= 0 && combo <= 5) {
       return Container(
-        margin: EdgeInsets.only(
-            top: 20,
-            left:
-                10), // décalages de 100 pixels vers le bas et 30 pixels vers la gauche
+        margin: EdgeInsets.only(top: 20, left: 10),
         child: Image.asset(
           'assets/images/combos/combo$combo.png',
           width: 120,
@@ -40,7 +37,7 @@ class ResponsePage extends StatelessWidget {
         ),
       );
     }
-    return Container(); // Add a default return statement
+    return Container(); // Add a default return statement if necessary
   }
 
   @override
@@ -53,7 +50,6 @@ class ResponsePage extends StatelessWidget {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Stack(
-            key: Key('response_page_stack'), // Clé ajoutée au Stack principal
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +93,7 @@ class ResponsePage extends StatelessWidget {
                           children: [
                             Text(
                               'Proposition:',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.colorText,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -105,7 +101,7 @@ class ResponsePage extends StatelessWidget {
                             ),
                             Text(
                               userProposition.toUpperCase(),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
                               ),
@@ -132,7 +128,7 @@ class ResponsePage extends StatelessWidget {
                         _buildInfoRow('Bonne Réponse', correctedName),
                         _buildInfoRow('Type de la musique', musicType),
                         _buildInfoRow('Date de la musique', musicDate),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         Center(
                           child: Image.asset(
                             musicImagePath,
@@ -140,8 +136,11 @@ class ResponsePage extends StatelessWidget {
                             height: 250,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return Icon(Icons.broken_image,
-                                  size: 250, color: Colors.red);
+                              return Icon(
+                                Icons.broken_image,
+                                size: 250,
+                                color: Colors.red,
+                              );
                             },
                           ),
                         ),
@@ -162,13 +161,21 @@ class ResponsePage extends StatelessWidget {
                       child: TextButton(
                         onPressed: onNextRound,
                         style: TextButton.styleFrom(
+                          backgroundColor: AppColors.colorNoirHextech,
                           foregroundColor: AppColors.colorTextTitle,
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                             horizontal: 20,
                             vertical: 15,
                           ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            side: BorderSide(
+                              color: AppColors.colorTextTitle,
+                              width: 2,
+                            ),
+                          ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Continuer la partie',
                           style: TextStyle(
                             fontSize: 18,
@@ -189,7 +196,7 @@ class ResponsePage extends StatelessWidget {
                   children: [
                     Text(
                       'Score: $score',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.colorText,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -198,7 +205,7 @@ class ResponsePage extends StatelessWidget {
                     SizedBox(height: 5),
                     Text(
                       'Combo: $combo',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.colorText,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -222,13 +229,13 @@ class ResponsePage extends StatelessWidget {
       children: [
         Text(
           '$title:',
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.colorText,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 5),
+        SizedBox(height: 5),
         Container(
           padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -240,13 +247,13 @@ class ResponsePage extends StatelessWidget {
           ),
           child: Text(
             content,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
               fontSize: 18,
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
       ],
     );
   }

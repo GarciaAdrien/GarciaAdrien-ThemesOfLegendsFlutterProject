@@ -15,7 +15,8 @@ class AccueilPage extends StatefulWidget {
 }
 
 class _AccueilPageState extends State<AccueilPage> {
-  final GameService gameService = GameService('http://localhost:8080');
+  final GameService gameService =
+      GameService('https://themes-of-legend-084997a82b0a.herokuapp.com');
   final AudioPlayer _audioPlayer = AudioPlayer();
   String? currentGameId;
 

@@ -40,6 +40,9 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
     _initializeVideoPlayerFuture = _controller.initialize().then((_) {
       // Ensure the video starts playing when initialized
       _controller.play();
+    }).catchError((error) {
+      // Handle error during initialization
+      print('Error initializing video: $error');
     });
   }
 
@@ -73,7 +76,7 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
             ),
           );
         } else {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(),
           );
         }

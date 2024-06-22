@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import '../models/models.dart';
 
 class MusicService {
-  String baseUrl = "http://localhost:8080/";
+  String baseUrl = "https://themes-of-legend-084997a82b0a.herokuapp.com/";
   MusicService(this.baseUrl);
 
   Future<List<Music>> getMusicList() async {

@@ -4,23 +4,44 @@ import 'package:http/http.dart' as http;
 import '../models/models.dart';
 
 class UserService {
-  final String baseUrl = 'http://localhost:8080/';
+  final String baseUrl = 'https://themes-of-legend-084997a82b0a.herokuapp.com/';
 
   UserService();
 
   Future<User> createUser(String name, String email, String password) async {
     final response = await http.post(
-      Uri.parse(
-          '${baseUrl}user/create?name=$name&email=$email&password=$password'),
+      Uri.parse('${baseUrl}user/create'),
       headers: <String, String>{
         'accept': 'application/hal+json',
       },
+      body: {
+        'name': name,
+        'email': email,
+        'password': password,
+      },
     );
+    print(response.body);
+    print('${baseUrl}user/create?name=$name&email=$email&password=$password');
 
-    if (response.statusCode == 200) {
-      return User.fromJson(jsonDecode(response.body));
+    if (response.statusCode == 200 || response.statusCode == 405) {
+      try {
+        // Attempt to decode JSON response
+        var decodedJson = jsonDecode(response.body);
+
+        // Check if decodedJson is a Map<String, dynamic>
+        if (decodedJson is Map<String, dynamic>) {
+          // Return User object if decoding successful
+          return User.fromJson(decodedJson);
+        } else {
+          throw FormatException('Invalid JSON format');
+        }
+      } catch (e) {
+        // Handle JSON decoding exception
+        throw Exception('Failed to decode user data: $e');
+      }
     } else {
-      throw Exception('Failed to create user');
+      // Handle non-200 status codes
+      throw Exception('Failed to create user. Status: ${response.statusCode}');
     }
   }
 

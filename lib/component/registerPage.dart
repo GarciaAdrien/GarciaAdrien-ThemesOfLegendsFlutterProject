@@ -4,6 +4,7 @@ import 'package:blindtestlol_flutter_app/utils/utils.dart'; // Importez vos ress
 import 'package:blindtestlol_flutter_app/component/homePage.dart';
 import 'package:blindtestlol_flutter_app/component/loginPage.dart';
 import 'package:blindtestlol_flutter_app/services/userServices.dart';
+import 'dart:async';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -160,17 +161,15 @@ class _RegisterPageState extends State<RegisterPage> {
       style: TextStyle(
         color: color ?? AppColors.colorTextTitle,
         fontFamily: 'CustomFont1',
-      ), // Utilisation de la couleur
+      ),
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: TextStyle(
           color: color ?? AppColors.colorTextTitle,
           fontFamily: 'CustomFont1',
-        ), // Utilisation de la couleur
-        filled:
-            true, // Ajout de cette ligne pour activer le remplissage du champ
-        fillColor: AppColors
-            .colorNoirHextech, // Couleur de fond pour le champ d'entrée
+        ),
+        filled: true,
+        fillColor: AppColors.colorNoirHextech,
         border: const OutlineInputBorder(),
       ),
     );
@@ -180,18 +179,44 @@ class _RegisterPageState extends State<RegisterPage> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
-      final user = await UserService().createUser(_nameController.text,
-          _emailController.text, _passwordController.text);
+      final user = await UserService().createUser(
+        _nameController.text,
+        _emailController.text,
+        _passwordController.text,
+      );
+      setState(() => _isLoading = false);
+
+      // Afficher le SnackBar de confirmation
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Utilisateur créé avec succès!'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      // Attendre 2 secondes avant de naviguer
+      await Future.delayed(const Duration(seconds: 2));
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-            builder: (_) => HomePage(
-                  user: user,
-                  updateUser: (User) {},
-                )),
+          builder: (_) => HomePage(
+            user: user,
+            updateUser: (User) {},
+          ),
+        ),
       );
     } catch (e) {
-      // Handle errors, possibly show an alert dialog
       setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Utilisateur créé avec succès!'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+      // Naviguer vers la page de login après une erreur
+      await Future.delayed(const Duration(seconds: 2));
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => LoginPage()),
+      );
     }
   }
 

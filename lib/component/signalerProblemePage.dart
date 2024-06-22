@@ -140,7 +140,7 @@ class SignalerProblemePage extends StatelessWidget {
                           ),
                         ),
                         child: TextButton(
-                          onPressed: () => _sendEmail(context),
+                          onPressed: () => _confirmAndSendEmail(context),
                           child: Text(
                             'Envoyer',
                             style: TextStyle(color: Colors.white),
@@ -158,7 +158,7 @@ class SignalerProblemePage extends StatelessWidget {
     );
   }
 
-  void _sendEmail(BuildContext context) async {
+  void _confirmAndSendEmail(BuildContext context) async {
     final String email = 'adriengarciaperso@gmail.com';
     final String subject = Uri.encodeComponent(subjectController.text);
     final String body = Uri.encodeComponent(
@@ -171,27 +171,52 @@ class SignalerProblemePage extends StatelessWidget {
       query: 'subject=$subject&body=$body',
     );
 
-    try {
-      if (await canLaunch(uri.toString())) {
-        await launch(uri.toString());
-      } else {
+    // Boîte de dialogue de confirmation
+    bool? result = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Ouvrir l\'application de messagerie'),
+          content: Text(
+              'Voulez-vous ouvrir l\'application de messagerie pour envoyer l\'e-mail ?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('Non'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('Oui'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // Si l'utilisateur a confirmé
+    if (result == true) {
+      try {
+        if (await canLaunch(uri.toString())) {
+          await launch(uri.toString());
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Impossible d\'ouvrir l\'application de messagerie. Veuillez vérifier si une application de messagerie est installée.',
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        print('Erreur lors de l\'envoi de l\'e-mail: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Impossible d\'envoyer l\'e-mail. Veuillez réessayer plus tard.',
+              'Erreur lors de l\'envoi de l\'e-mail. Veuillez réessayer plus tard.',
             ),
           ),
         );
       }
-    } catch (e) {
-      print('Erreur lors de l\'envoi de l\'e-mail: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Erreur lors de l\'envoi de l\'e-mail. Veuillez réessayer plus tard.',
-          ),
-        ),
-      );
     }
   }
 }

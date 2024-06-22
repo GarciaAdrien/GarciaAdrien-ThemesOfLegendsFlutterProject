@@ -1,4 +1,3 @@
-import 'package:blindtestlol_flutter_app/component/gameOverScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:blindtestlol_flutter_app/component/SignalerProblemePage.dart';
 import 'package:blindtestlol_flutter_app/component/boutiquePage.dart';
@@ -113,23 +112,6 @@ class ProfilPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => SignalerProblemePage(),
-                    ),
-                  );
-                },
-              ),
-              SizedBox(height: 8.0),
-              _customButton(
-                text: 'GameOver',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => GameOverScreen(
-                        score: 1800,
-                        combo: 3,
-                        mastery: 'Beginner',
-                        user: user,
-                      ),
                     ),
                   );
                 },

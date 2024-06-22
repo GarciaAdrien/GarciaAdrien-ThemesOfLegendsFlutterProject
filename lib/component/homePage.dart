@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage>
           user: _user,
           updateUser:
               widget.updateUser), // Utilisation de updateUser depuis widget
-      ClassementPage(),
+      ClassementPage(user: _user),
     ];
   }
 
@@ -57,7 +57,7 @@ class _HomePageState extends State<HomePage>
               user: _user,
               updateUser:
                   widget.updateUser), // Utilisation de updateUser depuis widget
-          ClassementPage(),
+          ClassementPage(user: _user),
         ];
       });
     } catch (e) {

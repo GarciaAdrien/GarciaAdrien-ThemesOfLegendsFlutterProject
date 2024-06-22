@@ -39,7 +39,8 @@ class AnswerPhasePage extends StatefulWidget {
 class _AnswerPhasePageState extends State<AnswerPhasePage>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final GameService gameService = GameService('http://localhost:8080');
+  final GameService gameService =
+      GameService('https://themes-of-legend-084997a82b0a.herokuapp.com');
   final AudioPlayer _audioPlayer = AudioPlayer();
   final TextEditingController _propositionController = TextEditingController();
   final TextEditingController _typeController =
@@ -77,7 +78,6 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
       begin: (currentRound - 1) / widget.totalRounds,
       end: currentRound / widget.totalRounds,
     ).animate(_animationController);
-    _propositionController.text = "NOM DE LA MUSIQUE";
     _typeController.text = "TYPE DE LA MUSIQUE";
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -256,7 +256,6 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
                   MaterialPageRoute(
                     builder: (context) => GameOverScreen(
                       score: apiResponse.player.score,
-                      combo: apiResponse.player.combo,
                       mastery: apiResponse.player.mastery,
                       user: widget.user,
                     ),

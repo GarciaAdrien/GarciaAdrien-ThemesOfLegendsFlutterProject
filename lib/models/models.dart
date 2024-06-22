@@ -286,18 +286,24 @@ class HighScore {
 }
 
 class UserHighScore {
+  final String uid;
   final String userName;
   final HighScore highScore;
+  String userAvatarToken; // Make this field mutable
 
   UserHighScore({
+    required this.uid,
     required this.userName,
     required this.highScore,
+    this.userAvatarToken = '', // Initialize with an empty string
   });
 
   factory UserHighScore.fromJson(Map<String, dynamic> json) {
     return UserHighScore(
+      uid: json['uid'] as String,
       userName: json['userName'],
       highScore: HighScore.fromJson(json['highScore']),
+      userAvatarToken: json['userAvatarToken'] ?? '', // Add this line
     );
   }
 
@@ -305,6 +311,7 @@ class UserHighScore {
     return {
       'userName': userName,
       'highScore': highScore.toJson(),
+      'userAvatarToken': userAvatarToken, // Add this line
     };
   }
 }

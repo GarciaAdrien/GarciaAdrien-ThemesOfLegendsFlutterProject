@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:blindtestlol_flutter_app/models/models.dart';
+import '../models/models.dart'; // Importez vos modèles
 import 'package:blindtestlol_flutter_app/services/highScoreServices.dart';
+import '../component/AnimatedPulse.dart';
+import '../utils/utils.dart';
+import '../component/background_video.dart'; // Importez le composant BackgroundVideo
 
 class ClassementPage extends StatefulWidget {
-  const ClassementPage({super.key});
+  final User user;
+
+  const ClassementPage({Key? key, required this.user}) : super(key: key);
 
   @override
   _ClassementPageState createState() => _ClassementPageState();
@@ -11,7 +16,9 @@ class ClassementPage extends StatefulWidget {
 
 class _ClassementPageState extends State<ClassementPage> {
   late Future<List<UserHighScore>> futureHighScores;
-  int selectedRound = 5; // Default selected round
+  int selectedRound = 5; // Tour sélectionné par défaut
+  double offsetX = 0.0; // Position horizontale du fond d'écran
+  double maxOffsetX = 0.0; // Limite maximale de défilement
 
   @override
   void initState() {
@@ -19,14 +26,22 @@ class _ClassementPageState extends State<ClassementPage> {
     futureHighScores = fetchHighScores(selectedRound);
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Calculer maxOffsetX une fois que le contexte est disponible
+    maxOffsetX = MediaQuery.of(context).size.width *
+        0.75; // 25% plus large que la largeur de l'écran
+    offsetX = maxOffsetX; // Commencer tout à droite du fond d'écran
+  }
+
   Future<List<UserHighScore>> fetchHighScores(int round) async {
     try {
       final highScores = await HighScoreService().getHighScores(round);
-      print('Fetched high scores: $highScores');
       return highScores;
     } catch (e) {
-      print('Failed to load high scores: $e');
-      throw Exception('Failed to load high scores: $e');
+      print('Échec du chargement des meilleurs scores: $e');
+      throw Exception('Échec du chargement des meilleurs scores: $e');
     }
   }
 
@@ -40,175 +55,171 @@ class _ClassementPageState extends State<ClassementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SizedBox(height: 20),
-          buildRoundButtons(),
-          SizedBox(height: 20),
-          Expanded(
-            child: buildHighScoreList(),
-          ),
-        ],
+      body: GestureDetector(
+        onHorizontalDragUpdate: (details) {
+          setState(() {
+            offsetX += details.primaryDelta!;
+            // Limiter offsetX pour éviter l'espace noir
+            if (offsetX > maxOffsetX) {
+              offsetX = maxOffsetX;
+            } else if (offsetX < -maxOffsetX) {
+              offsetX = -maxOffsetX;
+            }
+          });
+        },
+        child: Stack(
+          children: [
+            // Widget de vidéo de fond avec transform pour l'effet de défilement
+            Transform.translate(
+              offset: Offset(offsetX, 0),
+              child: Container(
+                width: MediaQuery.of(context).size.width * 1.25,
+                height: MediaQuery.of(context).size.height,
+                child: BackgroundVideo(
+                    videoPath: Mp4Assets.imageBackgroundClassement,
+                    fit: BoxFit.cover),
+              ),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(height: 20),
+                Expanded(
+                  child: buildHighScoreList(),
+                ),
+                SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: buildRoundButtons(),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget buildRoundButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        ElevatedButton(
-          onPressed: () => updateRound(5),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey[800], // background color
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-          child: Text('Tour 5'),
-        ),
-        ElevatedButton(
-          onPressed: () => updateRound(10),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey[800], // background color
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-          child: Text('Tour 10'),
-        ),
-        ElevatedButton(
-          onPressed: () => updateRound(15),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey[800], // background color
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-          child: Text('Tour 15'),
-        ),
-      ],
-    );
-  }
-
-  Widget buildHighScoreList() {
-    return FutureBuilder<List<UserHighScore>>(
-      future: futureHighScores,
-      builder: (context, snapshot) {
-        print('Snapshot state: ${snapshot.connectionState}');
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          print('Snapshot error: ${snapshot.error}');
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('Aucun classement trouvé'));
-        } else {
-          final highScores = snapshot.data!;
-          print('High scores length: ${highScores.length}');
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                buildPodium(highScores),
-                buildHighScoreItems(highScores),
-              ],
-            ),
-          );
-        }
-      },
-    );
-  }
-
-  Widget buildPodium(List<UserHighScore> highScores) {
-    if (highScores.length < 3) return Container();
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        buildPodiumSpot(2, highScores[1]),
-        buildPodiumSpot(1, highScores[0]),
-        buildPodiumSpot(3, highScores[2]),
-      ],
-    );
-  }
-
-  Widget buildPodiumSpot(int place, UserHighScore userHighScore) {
-    Color color;
-    double height;
-
-    switch (place) {
-      case 1:
-        color = Color(0xFFFFD700); // Gold color
-        height = 120;
-        break;
-      case 2:
-        color = Color(0xFFC0C0C0); // Silver color
-        height = 100;
-        break;
-      case 3:
-        color = Color(0xFFCD7F32); // Bronze color
-        height = 80;
-        break;
-      default:
-        color = Colors.grey;
-        height = 60;
-    }
-
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 8),
-      width: 80,
-      height: height,
-      color: color,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Text(
-            place.toString(),
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            userHighScore.userName,
-            style: TextStyle(fontSize: 18),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Score: ${userHighScore.highScore.highScoreValue}',
-            style: TextStyle(fontSize: 16),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Maîtrise: ${userHighScore.highScore.mastery}',
-            style: TextStyle(fontSize: 14),
-            textAlign: TextAlign.center,
-          ),
+          _buildRoundButton('Manche 5', 5),
+          _buildRoundButton('Manche 10', 10),
+          _buildRoundButton('Manche 15', 15),
         ],
       ),
     );
   }
 
-  Widget buildHighScoreItems(List<UserHighScore> highScores) {
-    final remainingItems = highScores.length > 3 ? highScores.length - 3 : 0;
-    print('Remaining items: $remainingItems');
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: remainingItems,
-      itemBuilder: (context, index) {
-        final userHighScore = highScores[index + 3];
-        print('Rendering high score for: ${userHighScore.userName}');
-        return ListTile(
-          title: Text(userHighScore.userName),
-          subtitle: Text(
-            'Score: ${userHighScore.highScore.highScoreValue}, Maîtrise: ${userHighScore.highScore.mastery}',
+  Widget _buildRoundButton(String label, int round) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.colorTextTitle, width: 2),
+      ),
+      child: ElevatedButton(
+        onPressed: () => updateRound(round),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.colorNoirHextech,
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
           ),
-        );
+        ),
+        child: Text(
+          label,
+          style: TextStyle(fontSize: 16, color: AppColors.colorTextTitle),
+        ),
+      ),
+    );
+  }
+
+  // Inside the buildHighScoreList method
+  Widget buildHighScoreList() {
+    return FutureBuilder<List<UserHighScore>>(
+      future: futureHighScores,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Erreur: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('Aucun classement trouvé'));
+        } else {
+          List<UserHighScore> highScores = snapshot.data!;
+          return ListView.builder(
+            itemCount: highScores.length,
+            itemBuilder: (context, index) {
+              UserHighScore userHighScore = highScores[index];
+              return Container(
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(0, 0, 0, 0.2), // Noir avec opacité
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                padding: EdgeInsets.all(12),
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: AnimatedPulse(
+                        child: Image.asset(
+                          "assets/images/legendes/${userHighScore.userAvatarToken}.png",
+                          fit: BoxFit.cover,
+                        ),
+                        duration: Duration(milliseconds: 2500),
+                      ),
+                    ),
+                  ),
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        userHighScore.userName,
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      SizedBox(height: 8), // Adjust spacing if needed
+                      Row(
+                        children: [
+                          Text('Score: '),
+                          Text(
+                            '${userHighScore.highScore.highScoreValue}',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8), // Adjust spacing if needed
+                      Row(
+                        children: [
+                          Text('Maîtrise: '),
+                          SizedBox(
+                            width: 50,
+                            height: 50,
+                            child: Image.asset(
+                              'assets/images/score/${userHighScore.highScore.mastery}.png',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  trailing: Image.asset(
+                    'assets/images/maitriseClassement/${index + 1}.png',
+                    width: 100,
+                    height: 100,
+                  ),
+                ),
+              );
+            },
+          );
+        }
       },
     );
   }

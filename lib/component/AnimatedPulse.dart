@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 
 class AnimatedPulse extends StatefulWidget {
   final Widget child;
+  final Duration duration;
 
-  const AnimatedPulse({Key? key, required this.child}) : super(key: key);
+  const AnimatedPulse({
+    Key? key,
+    required this.child,
+    this.duration = const Duration(milliseconds: 1000),
+  }) : super(key: key);
 
   @override
   _AnimatedPulseState createState() => _AnimatedPulseState();
@@ -19,7 +24,7 @@ class _AnimatedPulseState extends State<AnimatedPulse>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: widget.duration,
     )..repeat(reverse: true);
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
       CurvedAnimation(
