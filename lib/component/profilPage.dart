@@ -1,12 +1,10 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:blindtestlol_flutter_app/component/background_video.dart';
 import 'package:flutter/material.dart';
 import 'package:blindtestlol_flutter_app/component/SignalerProblemePage.dart';
 import 'package:blindtestlol_flutter_app/component/boutiquePage.dart';
 import 'package:blindtestlol_flutter_app/models/models.dart';
 import 'package:blindtestlol_flutter_app/utils/utils.dart';
 import 'package:blindtestlol_flutter_app/component/loginPage.dart';
-import 'package:video_player/video_player.dart';
 
 import 'aProposPage.dart';
 import 'comptePage.dart';
@@ -24,21 +22,19 @@ class ProfilPage extends StatefulWidget {
   _ProfilPageState createState() => _ProfilPageState();
 }
 
-class _ProfilPageState extends State<ProfilPage> {
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  late VideoPlayerController _controller;
+class _ProfilPageState extends State<ProfilPage> with RouteAware {
+  static final AudioPlayer _audioPlayer = AudioPlayer();
+
+  @override
+  Future<void> dispose() async {
+    super.dispose(); //change here
+    await _audioPlayer.stop();
+  }
 
   @override
   void initState() {
     super.initState();
-    final AudioPlayer _audioPlayer = AudioPlayer();
     _audioPlayer.play(AssetSource('sounds/orianna.mp3'));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   void _deconnexion(BuildContext context) {
@@ -49,7 +45,7 @@ class _ProfilPageState extends State<ProfilPage> {
 
   static final ButtonStyle customButtonStyle = ElevatedButton.styleFrom(
     foregroundColor: Colors.white,
-    backgroundColor: AppColors.colorNoirHextech.withOpacity(0.2),
+    backgroundColor: AppColors.colorNoirHextech.withOpacity(0.5),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10.0),
       side: BorderSide(
@@ -164,7 +160,7 @@ class _ProfilPageState extends State<ProfilPage> {
     required VoidCallback onPressed,
   }) {
     return SizedBox(
-      width: 200,
+      width: 300,
       child: ElevatedButton(
         onPressed: onPressed,
         style: customButtonStyle,

@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage>
   late List<Widget> _widgetOptions;
   final UserService _userService = UserService();
   late User _user;
-  final AudioPlayer _audioPlayer = AudioPlayer();
+
   @override
   void initState() {
     super.initState();
@@ -74,28 +74,22 @@ class _HomePageState extends State<HomePage>
   }
 
   void _onItemTapped(int index) {
+    final AudioPlayer _audioPlayer = AudioPlayer();
     switch (index) {
-      case 0: // Accueil
+      case 0: // ACCUEIL tab
         _audioPlayer.play(AssetSource('sounds/tft.mp3'));
-        setState(() {
-          _selectedIndex = index;
-        });
         break;
-      case 1: // Profil
+      case 1: // PROFIL tab
         _audioPlayer.play(AssetSource('sounds/tft.mp3'));
-        setState(() {
-          _selectedIndex = index;
-        });
         break;
-      case 2: // Classement
+      case 2: // CLASSEMENT tab
         _audioPlayer.play(AssetSource('sounds/classement.mp3'));
-        setState(() {
-          _selectedIndex = index;
-        });
-        break;
-      default:
         break;
     }
+
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   void _goToProfile() {

@@ -74,7 +74,7 @@ class ImageAssets {
   static const String imageCurseur = 'assets/images/logo/curseur.png';
   static const String imageShop = 'assets/images/logo/shop.png';
   static const String imageBackgroundProfil =
-      'assets/images/backgrounds/seraphineporo.jpg';
+      'assets/images/backgrounds/ProfilPage.png';
 }
 
 class Mp4Assets {
@@ -92,6 +92,10 @@ class Mp4Assets {
       'assets/musicBackground/EndGame.mp4';
   static const String imageBackgroundClassement =
       'assets/musicBackground/sanctuaryBackground.mp4';
+  static const String imageBackgroundClassement2 =
+      'assets/musicBackground/arena2.mp4';
+  static const String imageBackgroundClassement3 =
+      'assets/musicBackground/arena3.mp4';
   static const String imageBackgroundProfilPage =
       'assets/musicBackground/profil.mp4';
 }

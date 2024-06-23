@@ -277,7 +277,8 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
               Navigator.of(context).pop();
               await Future.delayed(Duration(milliseconds: 300));
               if (playRoundResponse != null) {
-                _showNextCountdownAndPlayMusic(playRoundResponse.token, apiResponse.player.score, apiResponse.player.combo);
+                _showNextCountdownAndPlayMusic(playRoundResponse.token,
+                    apiResponse.player.score, apiResponse.player.combo);
               }
               _initRandomImagePath();
             },

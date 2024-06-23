@@ -31,7 +31,7 @@ class _ClassementPageState extends State<ClassementPage> {
     super.didChangeDependencies();
     // Calculer maxOffsetX une fois que le contexte est disponible
     maxOffsetX = MediaQuery.of(context).size.width *
-        0.75; // 25% plus large que la largeur de l'écran
+        0.9; // 25% plus large que la largeur de l'écran
     offsetX = maxOffsetX; // Commencer tout à droite du fond d'écran
   }
 
@@ -48,6 +48,7 @@ class _ClassementPageState extends State<ClassementPage> {
   void updateRound(int round) {
     setState(() {
       selectedRound = round;
+      print(round);
       futureHighScores = fetchHighScores(selectedRound);
     });
   }
@@ -70,15 +71,11 @@ class _ClassementPageState extends State<ClassementPage> {
         child: Stack(
           children: [
             // Widget de vidéo de fond avec transform pour l'effet de défilement
-            Transform.translate(
-              offset: Offset(offsetX, 0),
-              child: Container(
-                width: MediaQuery.of(context).size.width * 1.25,
-                height: MediaQuery.of(context).size.height,
-                child: BackgroundVideo(
-                    videoPath: Mp4Assets.imageBackgroundClassement,
-                    fit: BoxFit.cover),
-              ),
+            BackgroundVideoWidget(
+              key: ValueKey(selectedRound),
+              selectedRound: selectedRound,
+              offsetX: offsetX,
+              maxOffsetX: maxOffsetX,
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -222,5 +219,58 @@ class _ClassementPageState extends State<ClassementPage> {
         }
       },
     );
+  }
+}
+
+class BackgroundVideoWidget extends StatelessWidget {
+  final int selectedRound;
+  final double offsetX;
+  final double maxOffsetX;
+
+  const BackgroundVideoWidget({
+    Key? key,
+    required this.selectedRound,
+    required this.offsetX,
+    required this.maxOffsetX,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.translate(
+      offset: Offset(offsetX, 0),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 1.25,
+        height: MediaQuery.of(context)
+            .size
+            .height, // Utilisation de la hauteur maximale de la page
+        child: getBackgroundVideo(selectedRound),
+      ),
+    );
+  }
+
+  Widget getBackgroundVideo(int round) {
+    print("Updating background for round: $round");
+    switch (round) {
+      case 5:
+        return BackgroundVideo(
+          videoPath: Mp4Assets.imageBackgroundClassement,
+          fit: BoxFit.cover, // Remplit la hauteur maximale sans déformation
+        );
+      case 10:
+        return BackgroundVideo(
+          videoPath: Mp4Assets.imageBackgroundClassement2,
+          fit: BoxFit.cover, // Remplit la hauteur maximale sans déformation
+        );
+      case 15:
+        return BackgroundVideo(
+          videoPath: Mp4Assets.imageBackgroundClassement3,
+          fit: BoxFit.cover, // Remplit la hauteur maximale sans déformation
+        );
+      default:
+        return BackgroundVideo(
+          videoPath: Mp4Assets.imageBackgroundClassement,
+          fit: BoxFit.cover, // Remplit la hauteur maximale sans déformation
+        );
+    }
   }
 }

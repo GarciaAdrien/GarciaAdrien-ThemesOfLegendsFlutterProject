@@ -30,6 +30,9 @@ class _ComptePageState extends State<ComptePage>
   late Animation<double> _scaleAnimation;
   late List<Avatar> avatars = [];
 
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
+      GlobalKey<ScaffoldMessengerState>();
+
   @override
   void initState() {
     super.initState();
@@ -77,8 +80,7 @@ class _ComptePageState extends State<ComptePage>
       context: context,
       builder: (context) {
         return Dialog(
-          backgroundColor:
-              AppColors.colorNoirHextech, // Définir la couleur de fond en rouge
+          backgroundColor: AppColors.colorNoirHextech,
           insetPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
           child: Container(
             decoration: BoxDecoration(
@@ -93,13 +95,12 @@ class _ComptePageState extends State<ComptePage>
                 children: [
                   Stack(
                     children: [
-                      // Ajuster l'alignement pour déplacer le bouton de fermeture
                       Positioned(
                         top: 5.0,
                         right: 5.0,
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.pop(context); // Fermer le dialogue
+                            Navigator.pop(context);
                           },
                           child: Icon(Icons.close),
                         ),
@@ -115,8 +116,7 @@ class _ComptePageState extends State<ComptePage>
                       ),
                     ],
                   ),
-                  SizedBox(
-                      height: 10.0), // Espaceur entre le titre et la grille
+                  SizedBox(height: 10.0),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -145,7 +145,6 @@ class _ComptePageState extends State<ComptePage>
                                 Navigator.pop(context);
                               } catch (e) {
                                 print('Failed to change avatar: $e');
-                                // Gérer l'erreur selon vos besoins
                               }
                             },
                             child: _buildGridItem(avatars[index]),
@@ -218,6 +217,7 @@ class _ComptePageState extends State<ComptePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldMessengerKey,
       appBar: AppBar(
         title: Text('Mon Compte'),
         backgroundColor: AppColors.colorNoirHextech,
@@ -311,18 +311,16 @@ class _ComptePageState extends State<ComptePage>
             User updatedUser =
                 await userService.updatePassword(widget.user.uid, newPassword);
 
-            // Update user info directly in widget
             setState(() {
               widget.user = updatedUser;
             });
 
-            ScaffoldMessenger.of(context).showSnackBar(
+            _scaffoldMessengerKey.currentState?.showSnackBar(
               SnackBar(
                 content: Text('Mot de passe mis à jour avec succès.'),
               ),
             );
 
-            // Return to HomePage with updated user
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -333,7 +331,7 @@ class _ComptePageState extends State<ComptePage>
               ),
             );
           } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
+            _scaffoldMessengerKey.currentState?.showSnackBar(
               SnackBar(
                 content:
                     Text('Erreur lors de la mise à jour du mot de passe: $e'),
@@ -341,19 +339,18 @@ class _ComptePageState extends State<ComptePage>
             );
           }
         } else if (newPassword.isNotEmpty && newPassword != confirmPassword) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SnackBar(
               content: Text('Les mots de passe ne correspondent pas.'),
             ),
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SnackBar(
               content: Text('Modifications sauvegardées avec succès.'),
             ),
           );
 
-          // If no password change, return to HomePage with current user
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -396,29 +393,28 @@ class _ComptePageState extends State<ComptePage>
           label,
           style: TextStyle(
             fontSize: 16,
-            color: Colors.white,
             fontFamily: 'CustomFont2',
+            color: AppColors.colorTextTitle,
           ),
         ),
         SizedBox(height: 8),
-        TextField(
+        TextFormField(
           controller: controller,
           obscureText: isPassword,
+          style: TextStyle(
+            color: AppColors.colorTextTitle,
+          ),
           enabled: isEditable,
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.black45,
+            fillColor: AppColors.colorNoirHextech,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide.none,
+              borderSide: BorderSide(
+                color: AppColors.colorTextTitle,
+                width: 2.0,
+              ),
             ),
-            contentPadding:
-                EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-          ),
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.white,
-            fontFamily: 'CustomFont2',
           ),
         ),
       ],

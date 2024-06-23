@@ -28,14 +28,24 @@ class _AccueilPageState extends State<AccueilPage> {
   String? currentGameId;
 
   @override
+  Future<void> dispose() async {
+    super.dispose(); //change here
+    await _audioPlayer.stop();
+  }
+
+  @override
   void initState() {
     super.initState();
-    final AudioPlayer _audioPlayer = AudioPlayer();
-    _audioPlayer.play(AssetSource('sounds/maestro.mp3'));
     _userService = UserService(); // Initialisez votre service utilisateur
-
     // Utilisation de Future.microtask pour appeler la méthode asynchrone après l'initialisation de l'état
     Future.microtask(() => _updateUser());
+    _startBackgroundMusic(); // Start playing background music
+  }
+
+  void _startBackgroundMusic() {
+    setState(() {
+      _audioPlayer.play(AssetSource('sounds/maestro.mp3'));
+    });
   }
 
   Future<void> _updateUser() async {
@@ -48,11 +58,6 @@ class _AccueilPageState extends State<AccueilPage> {
       // Gérez les erreurs ici si nécessaire
       print("Erreur lors de la mise à jour de l'utilisateur: $e");
     }
-  }
-
-  void _playMusic(String musicId) {
-    final filePath = 'song/$musicId.mp3';
-    _audioPlayer.play(AssetSource(filePath));
   }
 
   void _showCountdownAndPlayMusic(
@@ -107,7 +112,6 @@ class _AccueilPageState extends State<AccueilPage> {
               padding: const EdgeInsets.only(bottom: 16.0),
               child: ImageButtonPlay(
                 onPressed: () {
-                  final AudioPlayer _audioPlayer = AudioPlayer();
                   _audioPlayer.play(AssetSource('sounds/vfx2.mp3'));
                   _startNewGame();
                 },
@@ -172,12 +176,14 @@ class _ImageButtonPlayState extends State<ImageButtonPlay>
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
+
     _scaleAnimation = Tween<double>(begin: 0.95, end: 1.1).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeInOut,
       ),
     );
+
     _opacityAnimation = Tween<double>(begin: 0.7, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -188,7 +194,7 @@ class _ImageButtonPlayState extends State<ImageButtonPlay>
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _animationController.dispose(); // Dispose animation controller
     super.dispose();
   }
 
