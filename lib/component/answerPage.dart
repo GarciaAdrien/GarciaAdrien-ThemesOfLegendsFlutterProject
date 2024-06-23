@@ -54,6 +54,8 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
   late String _randomImagePath = 'assets/images/gif/sticker_1.gif';
   bool showRoundCountdown = false;
 
+  late String _currentMusicToken; // Variable d'état pour stocker le musicToken
+
   String? correctedName;
   String? correctedType;
   String? correctedDate;
@@ -69,6 +71,7 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
     _initRandomImagePath();
 
     currentRound = widget.currentRound;
+    _currentMusicToken = widget.initialMusicId; // Initialisez le token ici
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
@@ -190,7 +193,7 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
     await _audioPlayer.stop();
 
     print('Submitting response for gameId: ${widget.gameId}');
-    print('Music ID: ${widget.initialMusicId}');
+    print('Music ID: $_currentMusicToken'); // Utilisez la variable d'état ici
     print('Proposition: ${_propositionController.text}');
     print('Type: ${_typeController.text}');
     print('Date: ${_dateController.text}');
@@ -198,7 +201,7 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
     try {
       final GameResponse apiResponse = await gameService.postPlayerResponse(
         gameId: widget.gameId,
-        musicToken: widget.initialMusicId,
+        musicToken: _currentMusicToken, // Utilisez la variable d'état ici
         proposition: _propositionController.text,
         type: _typeController.text,
         date: _dateController.text,
@@ -212,8 +215,26 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
       _typeController.clear();
       _dateController.clear();
 
+      if (apiResponse.over) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => GameOverScreen(
+              score: apiResponse.player.score,
+              mastery: apiResponse.player.mastery,
+              user: widget.user,
+            ),
+          ),
+        );
+        return;
+      }
+
       final playRoundResponse = await gameService.playRound(widget.gameId);
       print('Play round response: ${playRoundResponse?.toJson()}');
+
+      if (playRoundResponse == null) {
+        print('Error: playRoundResponse is null');
+        return;
+      }
 
       setState(() {
         currentRound = apiResponse.round + 1;
@@ -226,69 +247,43 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
         _animationController.forward(from: 0.0);
         showRoundCountdown = false;
 
-        previousMusicType = apiResponse.musicPlayed[apiResponse.round - 1].type;
-        previousMusicDate = apiResponse.musicPlayed[apiResponse.round - 1].date;
-        previousCorrectedName = apiResponse.musicPlayed[apiResponse.round - 1].name;
-        previousMusicToken = apiResponse.musicPlayed[apiResponse.round - 1].token;
+        previousMusicType = apiResponse.musicPlayed.last.type;
+        previousMusicDate = apiResponse.musicPlayed.last.date;
+        previousCorrectedName = apiResponse.musicPlayed.last.name;
+        previousMusicToken = apiResponse.musicPlayed.last.token;
 
-        correctedName = playRoundResponse?.name;
-        correctedType = playRoundResponse?.type;
-        correctedDate = playRoundResponse?.date;
+        // Update _currentMusicToken with the token from the playRoundResponse for the next round
+        _currentMusicToken = playRoundResponse.token;
+
+        correctedName = playRoundResponse.name;
+        correctedType = playRoundResponse.type;
+        correctedDate = playRoundResponse.date;
 
         _initRandomImagePath();
       });
 
-      if (apiResponse.over) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => ResponsePage(
-              user: widget.user,
-              score: apiResponse.player.score,
-              combo: apiResponse.player.combo,
-              musicToken: previousMusicToken!,
-              musicType: previousMusicType!,
-              musicDate: previousMusicDate!,
-              userProposition: userProposition,
-              correctedName: previousCorrectedName!,
-              onNextRound: () async {
-                await Future.delayed(Duration(milliseconds: 300));
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) => GameOverScreen(
-                      score: apiResponse.player.score,
-                      mastery: apiResponse.player.mastery,
-                      user: widget.user,
-                    ),
-                  ),
-                );
-              },
-            ),
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => ResponsePage(
+            user: widget.user,
+            score: apiResponse.player.score,
+            combo: apiResponse.player.combo,
+            musicToken: previousMusicToken!,
+            musicType: previousMusicType!,
+            musicDate: previousMusicDate!,
+            userProposition: userProposition,
+            correctedName: previousCorrectedName!,
+            onNextRound: () async {
+              Navigator.of(context).pop();
+              await Future.delayed(Duration(milliseconds: 300));
+              if (playRoundResponse != null) {
+                _showNextCountdownAndPlayMusic(playRoundResponse.token, apiResponse.player.score, apiResponse.player.combo);
+              }
+              _initRandomImagePath();
+            },
           ),
-        );
-      } else {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => ResponsePage(
-              user: widget.user,
-              score: apiResponse.player.score,
-              combo: apiResponse.player.combo,
-              musicToken: previousMusicToken!,
-              musicType: previousMusicType!,
-              musicDate: previousMusicDate!,
-              userProposition: userProposition,
-              correctedName: previousCorrectedName!,
-              onNextRound: () async {
-                Navigator.of(context).pop();
-                await Future.delayed(Duration(milliseconds: 300));
-                if (playRoundResponse != null) {
-                  _showNextCountdownAndPlayMusic(playRoundResponse.token, apiResponse.player.score, apiResponse.player.combo);
-                }
-                _initRandomImagePath();
-              },
-            ),
-          ),
-        );
-      }
+        ),
+      );
     } catch (e) {
       print('Error: $e');
     }
