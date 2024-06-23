@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-
 import 'package:blindtestlol_flutter_app/component/gameOverScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -190,6 +189,12 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
 
     await _audioPlayer.stop();
 
+    print('Submitting response for gameId: ${widget.gameId}');
+    print('Music ID: ${widget.initialMusicId}');
+    print('Proposition: ${_propositionController.text}');
+    print('Type: ${_typeController.text}');
+    print('Date: ${_dateController.text}');
+
     try {
       final GameResponse apiResponse = await gameService.postPlayerResponse(
         gameId: widget.gameId,
@@ -199,14 +204,16 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
         date: _dateController.text,
       );
 
+      print('Received API response: ${apiResponse.toJson()}');
+
       final String userProposition = _propositionController.text;
 
       _propositionController.clear();
       _typeController.clear();
       _dateController.clear();
 
-      // Fetch the corrected response immediately after submitting the player's response
       final playRoundResponse = await gameService.playRound(widget.gameId);
+      print('Play round response: ${playRoundResponse?.toJson()}');
 
       setState(() {
         currentRound = apiResponse.round + 1;
@@ -219,25 +226,19 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
         _animationController.forward(from: 0.0);
         showRoundCountdown = false;
 
-        // Set corrected values from the previous playRoundResponse
         previousMusicType = apiResponse.musicPlayed[apiResponse.round - 1].type;
         previousMusicDate = apiResponse.musicPlayed[apiResponse.round - 1].date;
-        previousCorrectedName =
-            apiResponse.musicPlayed[apiResponse.round - 1].name;
-        previousMusicToken =
-            apiResponse.musicPlayed[apiResponse.round - 1].token;
+        previousCorrectedName = apiResponse.musicPlayed[apiResponse.round - 1].name;
+        previousMusicToken = apiResponse.musicPlayed[apiResponse.round - 1].token;
 
-        // Update the current music info for the next round
         correctedName = playRoundResponse?.name;
         correctedType = playRoundResponse?.type;
         correctedDate = playRoundResponse?.date;
 
-        // Mettre à jour _randomImagePath pour le nouveau round
         _initRandomImagePath();
       });
 
       if (apiResponse.over) {
-        // Afficher la ResponsePage pour le dernier round avant de naviguer vers GameOverScreen
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => ResponsePage(
@@ -250,7 +251,6 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
               userProposition: userProposition,
               correctedName: previousCorrectedName!,
               onNextRound: () async {
-                // Attendez une courte durée avant de naviguer vers GameOverScreen
                 await Future.delayed(Duration(milliseconds: 300));
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
@@ -281,10 +281,8 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
                 Navigator.of(context).pop();
                 await Future.delayed(Duration(milliseconds: 300));
                 if (playRoundResponse != null) {
-                  _showNextCountdownAndPlayMusic(playRoundResponse.token,
-                      apiResponse.player.score, apiResponse.player.combo);
+                  _showNextCountdownAndPlayMusic(playRoundResponse.token, apiResponse.player.score, apiResponse.player.combo);
                 }
-                // Mettre à jour _randomImagePath pour le nouveau round
                 _initRandomImagePath();
               },
             ),
@@ -300,6 +298,17 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
     _submitResponse();
   }
 
+  Future<void> _deleteGameAndExit() async {
+    try {
+      await gameService.deleteGame(widget.gameId);
+      print('Game successfully deleted');
+    } catch (e) {
+      print('Error deleting game: $e');
+    } finally {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     print('Nom de la musique : ${widget.initialMusicName}');
@@ -308,13 +317,12 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-   
         backgroundColor: AppColors.colorNoirHextech,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             _audioPlayer.stop();
-            Navigator.of(context).pop();
+            _deleteGameAndExit();
           },
         ),
         title: Image.asset(
