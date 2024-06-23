@@ -308,7 +308,6 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-   
         backgroundColor: AppColors.colorNoirHextech,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),

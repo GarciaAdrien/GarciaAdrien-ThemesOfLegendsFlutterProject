@@ -77,6 +77,8 @@ class _ComptePageState extends State<ComptePage>
       context: context,
       builder: (context) {
         return Dialog(
+          backgroundColor:
+              AppColors.colorNoirHextech, // Définir la couleur de fond en rouge
           insetPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
           child: Container(
             decoration: BoxDecoration(
@@ -91,13 +93,13 @@ class _ComptePageState extends State<ComptePage>
                 children: [
                   Stack(
                     children: [
-                      // Adjust alignment to shift the close button
+                      // Ajuster l'alignement pour déplacer le bouton de fermeture
                       Positioned(
                         top: 5.0,
                         right: 5.0,
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.pop(context); // Close the modal
+                            Navigator.pop(context); // Fermer le dialogue
                           },
                           child: Icon(Icons.close),
                         ),
@@ -113,7 +115,8 @@ class _ComptePageState extends State<ComptePage>
                       ),
                     ],
                   ),
-                  SizedBox(height: 10.0), // Spacer between title and grid
+                  SizedBox(
+                      height: 10.0), // Espaceur entre le titre et la grille
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -142,7 +145,7 @@ class _ComptePageState extends State<ComptePage>
                                 Navigator.pop(context);
                               } catch (e) {
                                 print('Failed to change avatar: $e');
-                                // Handle error as needed
+                                // Gérer l'erreur selon vos besoins
                               }
                             },
                             child: _buildGridItem(avatars[index]),

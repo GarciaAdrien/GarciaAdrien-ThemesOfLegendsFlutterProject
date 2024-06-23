@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:blindtestlol_flutter_app/component/answerPage.dart';
 import 'package:blindtestlol_flutter_app/component/homePage.dart';
 import 'package:blindtestlol_flutter_app/services/gameServices.dart';
@@ -28,10 +29,15 @@ class ModesDeJeuPage extends StatefulWidget {
   _ModesDeJeuPageState createState() => _ModesDeJeuPageState();
 }
 
+// Assuming you have already imported AudioPlayer and AssetSource correctly
+
 class _ModesDeJeuPageState extends State<ModesDeJeuPage>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+
+  // Define your AudioPlayer instance
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   static const String jeu1 = ImageAssets.jeu1;
   static const String jeu2 = ImageAssets.jeu2;
@@ -125,6 +131,21 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
                             break;
                           default:
                             roundToPlay = 0;
+                            break;
+                        }
+
+                        // Play corresponding sound effect
+                        switch (index) {
+                          case 0:
+                            _playSound('sounds/vfxjinx.mp3');
+                            break;
+                          case 1:
+                            _playSound('sounds/vfxjinx2.mp3');
+                            break;
+                          case 2:
+                            _playSound('sounds/vfxjinx3.mp3');
+                            break;
+                          default:
                             break;
                         }
 
@@ -228,6 +249,10 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
         ),
       ),
     );
+  }
+
+  void _playSound(String assetPath) {
+    _audioPlayer.play(AssetSource(assetPath));
   }
 
   void _startNewGame(int roundToPlay) async {

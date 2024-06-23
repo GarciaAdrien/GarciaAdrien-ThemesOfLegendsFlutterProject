@@ -104,7 +104,11 @@ class _AccueilPageState extends State<AccueilPage> {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
               child: ImageButtonPlay(
-                onPressed: _startNewGame,
+                onPressed: () {
+                  final AudioPlayer _audioPlayer = AudioPlayer();
+                  _audioPlayer.play(AssetSource('sounds/vfx2.mp3'));
+                  _startNewGame();
+                },
                 imageUrl: ImageAssets.imageButtonPlay,
               ),
             ),

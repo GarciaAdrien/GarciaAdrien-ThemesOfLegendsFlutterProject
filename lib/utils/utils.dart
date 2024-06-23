@@ -90,6 +90,8 @@ class Mp4Assets {
       'assets/musicBackground/EndGame.mp4';
   static const String imageBackgroundClassement =
       'assets/musicBackground/sanctuaryBackground.mp4';
+  static const String imageBackgroundProfilPage =
+      'assets/musicBackground/profil.mp4';
 }
 
 class AproposAssets {

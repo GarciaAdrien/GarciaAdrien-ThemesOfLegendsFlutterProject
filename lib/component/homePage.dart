@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:blindtestlol_flutter_app/models/models.dart';
 import 'package:flutter/material.dart';
 import 'package:blindtestlol_flutter_app/component/profilPage.dart';
@@ -25,7 +26,7 @@ class _HomePageState extends State<HomePage>
   late List<Widget> _widgetOptions;
   final UserService _userService = UserService();
   late User _user;
-
+  final AudioPlayer _audioPlayer = AudioPlayer();
   @override
   void initState() {
     super.initState();
@@ -73,9 +74,28 @@ class _HomePageState extends State<HomePage>
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    switch (index) {
+      case 0: // Accueil
+        _audioPlayer.play(AssetSource('sounds/tft.mp3'));
+        setState(() {
+          _selectedIndex = index;
+        });
+        break;
+      case 1: // Profil
+        _audioPlayer.play(AssetSource('sounds/tft.mp3'));
+        setState(() {
+          _selectedIndex = index;
+        });
+        break;
+      case 2: // Classement
+        _audioPlayer.play(AssetSource('sounds/classement.mp3'));
+        setState(() {
+          _selectedIndex = index;
+        });
+        break;
+      default:
+        break;
+    }
   }
 
   void _goToProfile() {
@@ -137,7 +157,7 @@ class _HomePageState extends State<HomePage>
               child: BackgroundVideo(
                 videoPath: Mp4Assets.imageBackgroundParticle,
                 fit: BoxFit.cover,
-                playbackSpeed: 2.5, // Adjust playback speed if supported
+                playbackSpeed: 2.5,
               ),
             ),
           ),
