@@ -30,6 +30,8 @@ class _AccueilPageState extends State<AccueilPage> {
   @override
   void initState() {
     super.initState();
+    final AudioPlayer _audioPlayer = AudioPlayer();
+    _audioPlayer.play(AssetSource('sounds/maestro.mp3'));
     _userService = UserService(); // Initialisez votre service utilisateur
 
     // Utilisation de Future.microtask pour appeler la méthode asynchrone après l'initialisation de l'état

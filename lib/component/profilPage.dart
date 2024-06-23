@@ -31,6 +31,8 @@ class _ProfilPageState extends State<ProfilPage> {
   @override
   void initState() {
     super.initState();
+    final AudioPlayer _audioPlayer = AudioPlayer();
+    _audioPlayer.play(AssetSource('sounds/orianna.mp3'));
   }
 
   @override
@@ -61,9 +63,14 @@ class _ProfilPageState extends State<ProfilPage> {
     return Scaffold(
       body: Stack(
         children: [
-          const BackgroundVideo(
-            videoPath: Mp4Assets.imageBackgroundProfilPage,
-            fit: BoxFit.cover,
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(ImageAssets.imageBackgroundProfil),
+                fit: BoxFit.fill,
+                alignment: Alignment.topCenter,
+              ),
+            ),
           ),
           Center(
             child: Column(
@@ -76,6 +83,7 @@ class _ProfilPageState extends State<ProfilPage> {
                 _customButton(
                   text: 'Compte',
                   onPressed: () {
+                    _audioPlayer.stop();
                     _audioPlayer.play(AssetSource('sounds/tft.mp3'));
                     Navigator.push(
                       context,
@@ -92,6 +100,7 @@ class _ProfilPageState extends State<ProfilPage> {
                 _customButton(
                   text: 'Boutique',
                   onPressed: () {
+                    _audioPlayer.stop();
                     _audioPlayer.play(AssetSource('sounds/tft.mp3'));
                     Navigator.push(
                       context,
@@ -108,6 +117,7 @@ class _ProfilPageState extends State<ProfilPage> {
                 _customButton(
                   text: 'À propos de nous',
                   onPressed: () {
+                    _audioPlayer.stop();
                     _audioPlayer.play(AssetSource('sounds/tft.mp3'));
                     Navigator.push(
                       context,
@@ -121,6 +131,7 @@ class _ProfilPageState extends State<ProfilPage> {
                 _customButton(
                   text: 'Signaler un problème',
                   onPressed: () {
+                    _audioPlayer.stop();
                     _audioPlayer.play(AssetSource('sounds/tft.mp3'));
                     Navigator.push(
                       context,
@@ -134,6 +145,7 @@ class _ProfilPageState extends State<ProfilPage> {
                 _customButton(
                   text: 'Déconnexion',
                   onPressed: () {
+                    _audioPlayer.stop();
                     _audioPlayer.play(AssetSource('sounds/tft.mp3'));
                     _deconnexion(context);
                   },

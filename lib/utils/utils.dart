@@ -73,6 +73,8 @@ class ImageAssets {
       'assets/images/logo/seraphine.png';
   static const String imageCurseur = 'assets/images/logo/curseur.png';
   static const String imageShop = 'assets/images/logo/shop.png';
+  static const String imageBackgroundProfil =
+      'assets/images/backgrounds/seraphineporo.jpg';
 }
 
 class Mp4Assets {

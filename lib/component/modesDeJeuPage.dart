@@ -36,7 +36,6 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
   late AnimationController _controller;
   late Animation<double> _animation;
 
-  // Define your AudioPlayer instance
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   static const String jeu1 = ImageAssets.jeu1;
@@ -100,9 +99,7 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Modes de Jeu',
-        ),
+        title: Text('Modes de Jeu'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -134,7 +131,6 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
                             break;
                         }
 
-                        // Play corresponding sound effect
                         switch (index) {
                           case 0:
                             _playSound('sounds/vfxjinx.mp3');
