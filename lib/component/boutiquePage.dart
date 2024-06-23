@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:blindtestlol_flutter_app/component/AnimatedLegend.dart';
 import 'package:flutter/material.dart';
 import 'package:blindtestlol_flutter_app/component/homePage.dart';
 import 'package:blindtestlol_flutter_app/models/models.dart';
@@ -44,27 +45,34 @@ class _BoutiquePageState extends State<BoutiquePage> {
     }
   }
 
-  Future<void> _handleBuyAvatar(String imageName, int avatarId) async {
+  Future<void> _handleBuyAvatar(
+      String imageName, int avatarId, int avatarPrice) async {
     try {
+      User updatedUser = await UserService().getUser(widget.user.uid);
+      // Check if user has enough points
+      if (updatedUser.totalScore < avatarPrice) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Vous n\'avez pas assez de points pour acheter cet avatar.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+
+      // Proceed with the purchase
       await UserService().buyAvatar(
         widget.user.uid,
         avatarId,
       );
 
-      // Mettre à jour l'utilisateur avec le nouveau score
-      User updatedUser = await UserService().getUser(widget.user.uid);
+      // Update the user's score
+
       if (!mounted) return;
       widget.updateUser(updatedUser);
 
-      // Afficher un message de succès
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Vous avez acheté $imageName avec succès !'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-
-      // Rediriger vers la page d'accueil avec la mise à jour de l'utilisateur
+      // Redirect to the home page with updated user info
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
@@ -75,9 +83,10 @@ class _BoutiquePageState extends State<BoutiquePage> {
           ),
         ),
       );
+
       _audioPlayer.stop();
     } catch (e) {
-      // Gérer les erreurs
+      // Handle errors
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -155,7 +164,7 @@ class _BoutiquePageState extends State<BoutiquePage> {
             false;
 
         if (confirmed) {
-          _handleBuyAvatar(avatar.token, avatar.id);
+          _handleBuyAvatar(avatar.token, avatar.id, avatar.price);
         }
       },
       child: Container(
@@ -183,9 +192,10 @@ class _BoutiquePageState extends State<BoutiquePage> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.asset(
-                      imagePath,
-                      fit: BoxFit.cover,
+                    AnimatedLegend(
+                      // Ajout de AnimatedLegend ici
+                      imagePath: imagePath,
+                      onTap: () {}, // Définir l'action onTap si nécessaire
                     ),
                     Positioned(
                       bottom: 0,
@@ -300,6 +310,8 @@ class CustomConfirmDialog extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
+                    final AudioPlayer _audioPlayer = AudioPlayer();
+                    _audioPlayer.play(AssetSource('sounds/sfx_buy.mp3'));
                     Navigator.of(context).pop(true);
                   },
                   child: Text(

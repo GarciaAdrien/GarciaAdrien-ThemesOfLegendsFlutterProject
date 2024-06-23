@@ -36,6 +36,7 @@ flutter:
     - assets/images/esgi/
     - assets/images/logo/
     - assets/images/gif/
+    - assets/sounds/
     - assets/images/score/
     - assets/images/maitriseClassement/
     - assets/musicBackground/

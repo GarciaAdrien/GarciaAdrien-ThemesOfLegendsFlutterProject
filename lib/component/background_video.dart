@@ -40,9 +40,6 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
     _initializeVideoPlayerFuture = _controller.initialize().then((_) {
       // Ensure the video starts playing when initialized
       _controller.play();
-    }).catchError((error) {
-      // Handle error during initialization
-      print('Error initializing video: $error');
     });
   }
 
@@ -54,8 +51,6 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
 
   @override
   void deactivate() {
-    // Pause video when widget is removed from the tree (e.g., navigating away)
-    _controller.pause();
     super.deactivate();
   }
 
@@ -76,7 +71,7 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
             ),
           );
         } else {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(),
           );
         }
