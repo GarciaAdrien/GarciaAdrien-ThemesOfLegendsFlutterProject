@@ -80,7 +80,7 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
       begin: (currentRound - 1) / widget.totalRounds,
       end: currentRound / widget.totalRounds,
     ).animate(_animationController);
-    _typeController.text = "TYPE DE LA MUSIQUE";
+    _initializeFormFields();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (mounted) {
@@ -111,6 +111,12 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
         .toList();
   }
 
+  void _initializeFormFields() {
+    _propositionController.text = "";
+    _typeController.text = "TYPE DE LA MUSIQUE";
+    _dateController.text = "";
+  }
+
   @override
   void dispose() {
     _audioPlayer.stop();
@@ -130,8 +136,7 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AbsorbPointer(
-          absorbing:
-              false, // Pour empêcher les interactions avec le contenu derrière
+          absorbing: false, // Pour empêcher les interactions avec le contenu derrière
           child: Opacity(
             opacity: 0.0, // Opacité à 0 pour rendre la modale invisible
             child: Dialog(
@@ -161,8 +166,7 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AbsorbPointer(
-          absorbing:
-              false, // Pour empêcher les interactions avec le contenu derrière
+          absorbing: false, // Pour empêcher les interactions avec le contenu derrière
           child: Opacity(
             opacity: 0.0, // Opacité à 0 pour rendre la modale invisible
             child: Dialog(
@@ -187,54 +191,41 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
     });
   }
 
-  Future<void> _submitResponse() async {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _submitResponse({
+    String proposition = "",
+    String type = "",
+    String date = "",
+  }) async {
+    if (!_formKey.currentState!.validate() && proposition.isEmpty) return;
 
     await _audioPlayer.stop();
 
+    final submittedProposition = proposition.isEmpty
+        ? _propositionController.text
+        : proposition;
+    final submittedType = type.isEmpty ? _typeController.text : type;
+    final submittedDate = date.isEmpty ? _dateController.text : date;
+
     print('Submitting response for gameId: ${widget.gameId}');
-    print('Music ID: $_currentMusicToken'); // Utilisez la variable d'état ici
-    print('Proposition: ${_propositionController.text}');
-    print('Type: ${_typeController.text}');
-    print('Date: ${_dateController.text}');
+    print('Music ID: $_currentMusicToken');
+    print('Proposition: $submittedProposition');
+    print('Type: $submittedType');
+    print('Date: $submittedDate');
 
     try {
       final GameResponse apiResponse = await gameService.postPlayerResponse(
         gameId: widget.gameId,
-        musicToken: _currentMusicToken, // Utilisez la variable d'état ici
-        proposition: _propositionController.text,
-        type: _typeController.text,
-        date: _dateController.text,
+        musicToken: _currentMusicToken,
+        proposition: submittedProposition,
+        type: submittedType,
+        date: submittedDate,
       );
 
       print('Received API response: ${apiResponse.toJson()}');
 
       final String userProposition = _propositionController.text;
 
-      _propositionController.clear();
-      _typeController.clear();
-      _dateController.clear();
-
-      if (apiResponse.over) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => GameOverScreen(
-              score: apiResponse.player.score,
-              mastery: apiResponse.player.mastery,
-              user: widget.user,
-            ),
-          ),
-        );
-        return;
-      }
-
-      final playRoundResponse = await gameService.playRound(widget.gameId);
-      print('Play round response: ${playRoundResponse?.toJson()}');
-
-      if (playRoundResponse == null) {
-        print('Error: playRoundResponse is null');
-        return;
-      }
+      _initializeFormFields();
 
       setState(() {
         currentRound = apiResponse.round + 1;
@@ -252,17 +243,19 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
         previousCorrectedName = apiResponse.musicPlayed.last.name;
         previousMusicToken = apiResponse.musicPlayed.last.token;
 
-        // Update _currentMusicToken with the token from the playRoundResponse for the next round
-        _currentMusicToken = playRoundResponse.token;
-
-        correctedName = playRoundResponse.name;
-        correctedType = playRoundResponse.type;
-        correctedDate = playRoundResponse.date;
+        correctedName = apiResponse.musicPlayed.last.name;
+        correctedType = apiResponse.musicPlayed.last.type;
+        correctedDate = apiResponse.musicPlayed.last.date;
 
         _initRandomImagePath();
       });
 
-      Navigator.of(context).push(
+      final playRoundResponse = apiResponse.over
+          ? null
+          : await gameService.playRound(widget.gameId);
+      print('Play round response: ${playRoundResponse?.toJson()}');
+
+      await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => ResponsePage(
             user: widget.user,
@@ -276,22 +269,52 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
             onNextRound: () async {
               Navigator.of(context).pop();
               await Future.delayed(Duration(milliseconds: 300));
-              if (playRoundResponse != null) {
+              if (!apiResponse.over && playRoundResponse != null) {
                 _showNextCountdownAndPlayMusic(playRoundResponse.token,
                     apiResponse.player.score, apiResponse.player.combo);
+                _initializeFormFields();
+                _initRandomImagePath();
               }
-              _initRandomImagePath();
             },
           ),
         ),
       );
+
+      // Navigate to GameOverScreen if the game is over
+      if (apiResponse.over) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => GameOverScreen(
+              score: apiResponse.player.score,
+              mastery: apiResponse.player.mastery,
+              user: widget.user,
+            ),
+          ),
+        );
+      } else {
+        if (playRoundResponse == null) {
+          print('Error: playRoundResponse is null');
+          return;
+        }
+
+        setState(() {
+          _currentMusicToken = playRoundResponse.token;
+          correctedName = playRoundResponse.name;
+          correctedType = playRoundResponse.type;
+          correctedDate = playRoundResponse.date;
+        });
+      }
     } catch (e) {
       print('Error: $e');
     }
   }
 
   void _onCountdownComplete() {
-    _submitResponse();
+    _submitResponse(
+      proposition: "tempsimpartieecoulé",
+      type: "tempsimpartieecoulé",
+      date: "tempsimpartieecoulé",
+    );
   }
 
   Future<void> _deleteGameAndExit() async {
