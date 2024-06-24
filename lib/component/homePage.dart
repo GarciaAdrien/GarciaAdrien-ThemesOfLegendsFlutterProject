@@ -26,6 +26,7 @@ class _HomePageState extends State<HomePage>
   late List<Widget> _widgetOptions;
   final UserService _userService = UserService();
   late User _user;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
   void initState() {
@@ -35,6 +36,7 @@ class _HomePageState extends State<HomePage>
       AccueilPage(
         user: _user,
         updateUser: (User) {},
+        audioplayer: _audioPlayer,
       ),
       ProfilPage(
           user: _user,
@@ -59,6 +61,7 @@ class _HomePageState extends State<HomePage>
           AccueilPage(
             user: _user,
             updateUser: (User p1) {},
+            audioplayer: _audioPlayer,
           ),
           ProfilPage(
               user: _user,
@@ -117,6 +120,7 @@ class _HomePageState extends State<HomePage>
   }
 
   void _goToCompte() async {
+    _audioPlayer.stop();
     final updatedUser = await Navigator.push(
       context,
       MaterialPageRoute(

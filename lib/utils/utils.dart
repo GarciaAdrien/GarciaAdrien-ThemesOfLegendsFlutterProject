@@ -41,10 +41,10 @@ class ImageAssets {
       'assets/images/backgrounds/classement.png';
   static const String imageModesDejeu =
       'assets/images/backgrounds/modesdejeu.png';
-  static const String jeu1 = 'assets/images/backgrounds/jeu1.png';
-  static const String jeu2 = 'assets/images/backgrounds/Jeu2.png';
-  static const String jeu3 = 'assets/images/backgrounds/Jeu3.png';
-  static const String jeu4 = 'assets/images/backgrounds/Jeu4.png';
+  static const String jeu1 = 'assets/images/logo/jeu1.png';
+  static const String jeu2 = 'assets/images/logo/jeu2.png';
+  static const String jeu3 = 'assets/images/logo/jeu3.png';
+  static const String jeu4 = 'assets/images/logo/jeu4.png';
   static const String imageEssenceBleue =
       'assets/images/backgrounds/essencebleu.png';
   static const String imageEssenceOrange =

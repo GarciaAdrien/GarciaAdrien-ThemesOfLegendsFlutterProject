@@ -164,7 +164,7 @@ class _ClassementPageState extends State<ClassementPage> {
                     width: 100,
                     height: 100,
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(50),
+                      borderRadius: BorderRadius.circular(30),
                       child: AnimatedPulse(
                         child: Image.asset(
                           "assets/images/legendes/${userHighScore.userAvatarToken}.png",

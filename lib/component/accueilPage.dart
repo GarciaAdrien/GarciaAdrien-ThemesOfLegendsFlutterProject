@@ -12,8 +12,13 @@ import 'modesDeJeuPage.dart';
 class AccueilPage extends StatefulWidget {
   final User user;
   final Function(User) updateUser;
+  final AudioPlayer audioplayer; // Déclaration du paramètre audioplayer
 
-  const AccueilPage({Key? key, required this.user, required this.updateUser})
+  const AccueilPage(
+      {Key? key,
+      required this.user,
+      required this.updateUser,
+      required this.audioplayer})
       : super(key: key);
 
   @override
@@ -23,14 +28,13 @@ class AccueilPage extends StatefulWidget {
 class _AccueilPageState extends State<AccueilPage> {
   final GameService gameService =
       GameService('https://themes-of-legend-084997a82b0a.herokuapp.com');
-  final AudioPlayer _audioPlayer = AudioPlayer();
   late UserService _userService;
   String? currentGameId;
 
   @override
   Future<void> dispose() async {
     super.dispose(); //change here
-    await _audioPlayer.stop();
+    await widget.audioplayer.stop();
   }
 
   @override
@@ -39,13 +43,11 @@ class _AccueilPageState extends State<AccueilPage> {
     _userService = UserService(); // Initialisez votre service utilisateur
     // Utilisation de Future.microtask pour appeler la méthode asynchrone après l'initialisation de l'état
     Future.microtask(() => _updateUser());
-    _startBackgroundMusic(); // Start playing background music
+    _startBackgroundMusic();
   }
 
   void _startBackgroundMusic() {
-    setState(() {
-      _audioPlayer.play(AssetSource('sounds/maestro.mp3'));
-    });
+    widget.audioplayer.play(AssetSource('sounds/maestro.mp3'));
   }
 
   Future<void> _updateUser() async {
@@ -112,7 +114,7 @@ class _AccueilPageState extends State<AccueilPage> {
               padding: const EdgeInsets.only(bottom: 16.0),
               child: ImageButtonPlay(
                 onPressed: () {
-                  _audioPlayer.play(AssetSource('sounds/vfx2.mp3'));
+                  widget.audioplayer.play(AssetSource('sounds/vfx2.mp3'));
                   _startNewGame();
                 },
                 imageUrl: ImageAssets.imageButtonPlay,

@@ -193,16 +193,14 @@ class SignalerProblemePage extends StatelessWidget {
 
     if (result == true) {
       try {
-        if (await canLaunch(uri.toString())) {
-          await launch(uri.toString());
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Impossible d\'ouvrir Gmail. Veuillez vérifier si Gmail est installé.',
-              ),
-            ),
-          );
+        _sendMail() async {
+          // Android and iOS
+          const uri = 'mailto:adriengarciaperso@gmail.com';
+          if (await canLaunch(uri)) {
+            await launch(uri);
+          } else {
+            throw 'Could not launch $uri';
+          }
         }
       } catch (e) {
         print('Erreur lors de l\'envoi de l\'e-mail: $e');

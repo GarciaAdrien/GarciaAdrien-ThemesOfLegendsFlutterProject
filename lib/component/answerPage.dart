@@ -136,7 +136,8 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AbsorbPointer(
-          absorbing: false, // Pour empêcher les interactions avec le contenu derrière
+          absorbing:
+              false, // Pour empêcher les interactions avec le contenu derrière
           child: Opacity(
             opacity: 0.0, // Opacité à 0 pour rendre la modale invisible
             child: Dialog(
@@ -166,7 +167,8 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AbsorbPointer(
-          absorbing: false, // Pour empêcher les interactions avec le contenu derrière
+          absorbing:
+              false, // Pour empêcher les interactions avec le contenu derrière
           child: Opacity(
             opacity: 0.0, // Opacité à 0 pour rendre la modale invisible
             child: Dialog(
@@ -200,9 +202,8 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
 
     await _audioPlayer.stop();
 
-    final submittedProposition = proposition.isEmpty
-        ? _propositionController.text
-        : proposition;
+    final submittedProposition =
+        proposition.isEmpty ? _propositionController.text : proposition;
     final submittedType = type.isEmpty ? _typeController.text : type;
     final submittedDate = date.isEmpty ? _dateController.text : date;
 
@@ -250,9 +251,8 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
         _initRandomImagePath();
       });
 
-      final playRoundResponse = apiResponse.over
-          ? null
-          : await gameService.playRound(widget.gameId);
+      final playRoundResponse =
+          apiResponse.over ? null : await gameService.playRound(widget.gameId);
       print('Play round response: ${playRoundResponse?.toJson()}');
 
       await Navigator.of(context).push(
