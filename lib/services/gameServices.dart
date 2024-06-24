@@ -10,14 +10,17 @@ class GameService {
   Future<GameResponse> createGame(String userUid, int roundToPlay) async {
     final url = Uri.parse(
         '$baseUrl/game/create?userUid=$userUid&roundToPlay=$roundToPlay');
-    final response =
-        await http.post(url, headers: {'Content-Type': 'application/json'});
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json; charset=utf-8'},
+    );
 
     if (response.statusCode != 200) {
       print('Failed to create game: ${response.statusCode}');
       throw Exception('Failed to create game: ${response.statusCode}');
     }
-    final gameResponse = GameResponse.fromJson(jsonDecode(response.body));
+    final gameResponse = GameResponse.fromJson(
+        jsonDecode(utf8.decode(response.bodyBytes)));
     print('createGame response: $gameResponse');
     return gameResponse;
   }
@@ -28,8 +31,8 @@ class GameService {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        final playRoundResponse =
-            PlayRoundResponse.fromJson(jsonDecode(response.body));
+        final playRoundResponse = PlayRoundResponse.fromJson(
+            jsonDecode(utf8.decode(response.bodyBytes)));
         print('playRound response: $playRoundResponse');
         return playRoundResponse;
       } else {
@@ -42,61 +45,64 @@ class GameService {
     }
   }
 
-Future<GameResponse> postPlayerResponse({
-  required String gameId,
-  required String musicToken,
-  required String proposition,
-  required String type,
-  required String date,
-}) async {
-  final url = Uri.parse('$baseUrl/game/player-response?gameId=$gameId');
-  final body = jsonEncode({
-    'musicToken': musicToken,
-    'proposition': proposition,
-    'type': type,
-    'date': date,
-  });
+  Future<GameResponse> postPlayerResponse({
+    required String gameId,
+    required String musicToken,
+    required String proposition,
+    required String type,
+    required String date,
+  }) async {
+    final url = Uri.parse('$baseUrl/game/player-response?gameId=$gameId');
+    final body = jsonEncode({
+      'musicToken': musicToken,
+      'proposition': proposition,
+      'type': type,
+      'date': date,
+    });
 
-  print('Sending POST request to $url');
-  print('Request body: $body');
+    print('Sending POST request to $url');
+    print('Request body: $body');
 
-  final response = await http.post(
-    url,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/hal+json',
-    },
-    body: body,
-  );
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Accept': 'application/hal+json',
+      },
+      body: body,
+    );
 
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
 
-  if (response.statusCode == 200) {
-    final responseJson = jsonDecode(response.body);
-    print('Parsed response: $responseJson');
-    return GameResponse.fromJson(responseJson);
-  } else {
-    print('Failed to submit player response: ${response.statusCode} - ${response.body}');
-    throw Exception('Failed to submit player response: ${response.statusCode} - ${response.body}');
+    if (response.statusCode == 200) {
+      final responseJson = jsonDecode(utf8.decode(response.bodyBytes));
+      print('Parsed response: $responseJson');
+      return GameResponse.fromJson(responseJson);
+    } else {
+      print('Failed to submit player response: ${response.statusCode} - ${response.body}');
+      throw Exception(
+          'Failed to submit player response: ${response.statusCode} - ${response.body}');
+    }
   }
-}
 
-
-
-Future<void> deleteGame(String gameId) async {
+  Future<void> deleteGame(String gameId) async {
     final url = Uri.parse('$baseUrl/game/delete?gameId=$gameId');
 
     print('Sending DELETE request to $url');
 
-    final response = await http.delete(url);
+    final response = await http.delete(
+      url,
+      headers: {'Content-Type': 'application/json; charset=utf-8'},
+    );
 
     print('Response status: ${response.statusCode}');
     if (response.statusCode == 200) {
       print('Game deleted successfully');
     } else {
       print('Failed to delete game: ${response.statusCode} - ${response.body}');
-      throw Exception('Failed to delete game: ${response.statusCode} - ${response.body}');
+      throw Exception(
+          'Failed to delete game: ${response.statusCode} - ${response.body}');
     }
   }
 }
