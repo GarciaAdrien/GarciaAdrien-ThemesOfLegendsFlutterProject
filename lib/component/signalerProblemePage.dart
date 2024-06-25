@@ -158,6 +158,10 @@ class SignalerProblemePage extends StatelessWidget {
     );
   }
 
+  String decodeSpecialCharacters(String input) {
+    return Uri.decodeComponent(input);
+  }
+
   void _confirmAndSendEmail(BuildContext context) async {
     final String email = 'adriengarciaperso@gmail.com';
     final String subject = Uri.encodeComponent(subjectController.text);
@@ -190,22 +194,28 @@ class SignalerProblemePage extends StatelessWidget {
         );
       },
     );
-
     if (result == true) {
       try {
-        _sendMail() async {
-          // Android and iOS
-          const uri = 'mailto:adriengarciaperso@gmail.com';
-          if (await canLaunch(uri)) {
-            await launch(uri);
-          } else {
-            throw 'Could not launch $uri';
-          }
+        String? encodeQueryParameters(Map<String, String> params) {
+          return params.entries
+              .map((MapEntry<String, String> e) =>
+                  '${Uri.encodeComponent(e.key)}=${Uri.encodeFull(e.value)}')
+              .join('&');
         }
+
+        final Uri emailLaunchUri = Uri(
+          scheme: 'mailto',
+          path: email,
+          query: encodeQueryParameters(<String, String>{
+            'subject': decodeSpecialCharacters(subject),
+            'body': decodeSpecialCharacters(body),
+          }),
+        );
+
+        launchUrl(emailLaunchUri);
       } catch (e) {
-        print('Erreur lors de l\'envoi de l\'e-mail: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text(
               'Erreur lors de l\'envoi de l\'e-mail. Veuillez réessayer plus tard.',
             ),
