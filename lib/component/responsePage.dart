@@ -194,22 +194,51 @@ class ResponsePage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      'Score: $score',
-                      style: TextStyle(
-                        color: AppColors.colorText,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          'Score: ',
+                          style: TextStyle(
+                            color: AppColors.colorText,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '$score',
+                          style: TextStyle(
+                            color: AppColors.colorTextTitle,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Image.asset(
+                          ImageAssets.imageEssenceBleue,
+                          width: 30,
+                          height: 30,
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      'Combo: $combo',
-                      style: TextStyle(
-                        color: AppColors.colorText,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Text(
+                          'Combo: ',
+                          style: TextStyle(
+                            color: AppColors.colorText,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '$combo',
+                          style: TextStyle(
+                            color: AppColors.colorTextTitle,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 16),
                     _buildComboImage(combo),

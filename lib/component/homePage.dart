@@ -289,7 +289,7 @@ class _HomePageState extends State<HomePage>
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: ImageIcon(AssetImage(ImageAssets.imageAccueil), size: 30),
-              label: 'ACCUEIL',
+              label: 'JOUER',
             ),
             BottomNavigationBarItem(
               icon: Image.asset(

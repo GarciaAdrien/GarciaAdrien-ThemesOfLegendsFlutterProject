@@ -134,7 +134,6 @@ class _ClassementPageState extends State<ClassementPage> {
     );
   }
 
-  // Inside the buildHighScoreList method
   Widget buildHighScoreList() {
     return FutureBuilder<List<UserHighScore>>(
       future: futureHighScores,
@@ -151,9 +150,12 @@ class _ClassementPageState extends State<ClassementPage> {
             itemCount: highScores.length,
             itemBuilder: (context, index) {
               UserHighScore userHighScore = highScores[index];
+              bool isCurrentUser = userHighScore.uid ==
+                  widget.user.uid; // Vérifie si c'est l'utilisateur courant
+
               return Container(
                 decoration: BoxDecoration(
-                  color: Color.fromRGBO(0, 0, 0, 0.2), // Noir avec opacité
+                  color: Color.fromRGBO(0, 0, 0, 0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -179,19 +181,28 @@ class _ClassementPageState extends State<ClassementPage> {
                     children: [
                       Text(
                         userHighScore.userName,
-                        style: TextStyle(fontSize: 18),
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: isCurrentUser
+                              ? AppColors.colorTextTitle
+                              : Colors
+                                  .white, // Applique la couleur jaune pour l'utilisateur courant
+                        ),
                       ),
-                      SizedBox(height: 8), // Adjust spacing if needed
+                      SizedBox(height: 8),
                       Row(
                         children: [
                           Text('Score: '),
                           Text(
                             '${userHighScore.highScore.highScoreValue}',
-                            style: TextStyle(fontSize: 14),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white,
+                            ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 8), // Adjust spacing if needed
+                      SizedBox(height: 8),
                       Row(
                         children: [
                           Text('Maîtrise: '),

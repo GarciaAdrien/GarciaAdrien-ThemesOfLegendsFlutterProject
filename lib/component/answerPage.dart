@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:blindtestlol_flutter_app/component/boutiquePage.dart';
 import 'package:blindtestlol_flutter_app/component/gameOverScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -18,6 +19,7 @@ class AnswerPhasePage extends StatefulWidget {
   final String initialMusicName;
   final String initialMusicType;
   final String initialMusicDate;
+  final String modeTitle;
 
   const AnswerPhasePage({
     Key? key,
@@ -29,6 +31,7 @@ class AnswerPhasePage extends StatefulWidget {
     required this.initialMusicName,
     required this.initialMusicType,
     required this.initialMusicDate,
+    required this.modeTitle,
   }) : super(key: key);
 
   @override
@@ -64,6 +67,47 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
   String? previousMusicDate;
   String? previousCorrectedName;
   String? previousMusicToken;
+  Object _showExitConfirmationDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          title: Text('Confirmation'),
+          content:
+              Text('Êtes-vous sûr de vouloir quitter la partie en cours ?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text(
+                'Annuler',
+                style: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                _audioPlayer.stop();
+                _deleteGameAndExit();
+                Navigator.of(context).pop(true);
+              },
+              child: Text(
+                'Confirmer',
+                style: TextStyle(
+                  color: AppColors.colorTextTitle,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    ); // Return false if dialog is dismissed by tapping outside of it
+  }
 
   @override
   void initState() {
@@ -324,7 +368,9 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
     } catch (e) {
       print('Error deleting game: $e');
     } finally {
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
@@ -340,8 +386,10 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            _audioPlayer.stop();
-            _deleteGameAndExit();
+            bool shouldExit = _showExitConfirmationDialog() as bool;
+            if (shouldExit) {
+              Navigator.of(context).pop();
+            }
           },
         ),
         title: Image.asset(
@@ -350,12 +398,10 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.fromLTRB(
+                0, 10, 10, 8), // Ajouter du padding à droite et en haut
             child: showRoundCountdown
-                ? CountdownWidget(
-                    seconds: 30,
-                    onComplete: _onCountdownComplete,
-                  )
+                ? CountdownTimer(duration: 30, onComplete: _onCountdownComplete)
                 : SizedBox.shrink(),
           ),
         ],
@@ -381,6 +427,15 @@ class _AnswerPhasePageState extends State<AnswerPhasePage>
                     ),
                   );
                 },
+              ),
+              const SizedBox(height: 10),
+              Text(
+                widget.modeTitle,
+                style: const TextStyle(
+                  color: AppColors.colorText,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 10),
               Text(

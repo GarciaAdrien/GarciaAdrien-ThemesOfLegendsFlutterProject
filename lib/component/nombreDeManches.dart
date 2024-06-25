@@ -41,6 +41,7 @@ class _NombreDeManchesState extends State<NombreDeManches> {
           initialMusicName: musicName,
           initialMusicType: musicType,
           initialMusicDate: musicDate,
+          modeTitle: '',
         ),
       ),
     );

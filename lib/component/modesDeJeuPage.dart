@@ -48,31 +48,35 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
   static const String imageBackground3 = ImageAssets.imageBackground3;
   static const String imageBackground4 = ImageAssets.imageBackground4;
 
-  final List<Map<String, String>> modes = [
+  final List<Map<String, dynamic>> modes = [
     {
       'image': jeu1,
       'title': 'Faille de l\'invocateur',
       'background': imageBackground1,
-      'description': 'Jouer en mode Faille de l\'invocateur classique.'
+      'description': 'Jouer en mode Faille de l\'invocateur classique.',
+      'greyedOut': false,
     },
     {
       'image': jeu2,
       'title': 'ARAM',
       'background': imageBackground2,
-      'description': 'Mettez vos réflexes musicaux à l\'épreuve en mode ARAM.'
+      'description': 'Mettez vos réflexes musicaux à l\'épreuve en mode ARAM.',
+      'greyedOut': false,
     },
     {
       'image': jeu3,
       'title': 'URF',
       'background': imageBackground3,
-      'description': 'Vibrez au rythme des musiques endiablées en mode URF.'
+      'description': 'Vibrez au rythme des musiques endiablées en mode URF.',
+      'greyedOut': false,
     },
     {
       'image': jeu4,
       'title': 'À Venir',
       'background': imageBackground4,
       'description':
-          'Restez à l\'écoute pour découvrir de nouveaux modes de jeu très prochainement !'
+          'Restez à l\'écoute pour découvrir des futurs modes de jeu!',
+      'greyedOut': true,
     },
   ];
 
@@ -115,6 +119,9 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
                   children: [
                     GestureDetector(
                       onTap: () {
+                        if (mode['greyedOut']) {
+                          return;
+                        }
                         int roundToPlay;
                         switch (index) {
                           case 0:
@@ -146,7 +153,7 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
                         }
 
                         if (roundToPlay > 0) {
-                          _startNewGame(roundToPlay);
+                          _startNewGame(roundToPlay, mode['title']);
                         } else {
                           Navigator.push(
                             context,
@@ -164,7 +171,7 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
                           borderRadius: BorderRadius.circular(30.0),
                           color: AppColors.colorNoirHextech,
                           image: DecorationImage(
-                            image: AssetImage(mode['background']!),
+                            image: AssetImage(mode['background']),
                             fit: BoxFit.fill,
                           ),
                         ),
@@ -175,7 +182,7 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
                             Transform.scale(
                               scale: _animation.value,
                               child: Image.asset(
-                                mode['image']!,
+                                mode['image'],
                                 width: 100,
                                 height: 100,
                                 fit: BoxFit.cover,
@@ -207,9 +214,9 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
                                           CrossAxisAlignment.center,
                                       children: [
                                         Text(
-                                          mode['title']!,
-                                          style: TextStyle(
-                                            fontSize: 18,
+                                          mode['title'],
+                                          style: const TextStyle(
+                                            fontSize: 22,
                                             fontFamily: 'CustomFont1',
                                             color: AppColors.colorText,
                                             fontWeight: FontWeight.bold,
@@ -217,9 +224,9 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
                                         ),
                                         SizedBox(height: 4),
                                         Text(
-                                          mode['description']!,
-                                          style: TextStyle(
-                                            fontSize: 12,
+                                          mode['description'],
+                                          style: const TextStyle(
+                                            fontSize: 14,
                                             color: Colors.white70,
                                           ),
                                           textAlign: TextAlign.center,
@@ -251,7 +258,7 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
     _audioPlayer.play(AssetSource(assetPath));
   }
 
-  void _startNewGame(int roundToPlay) async {
+  void _startNewGame(int roundToPlay, String modeTitle) async {
     final GameResponse gameResponse = await widget.gameService.createGame(
       widget.user.uid,
       roundToPlay,
@@ -268,14 +275,15 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
         playRoundResponse.name,
         playRoundResponse.type,
         playRoundResponse.date,
+        modeTitle,
       );
     } else {
       print('No initialMusicId received.');
     }
   }
 
-  void _showCountdownAndPlayMusic(
-      String musicId, String musicName, String musicType, String musicDate) {
+  void _showCountdownAndPlayMusic(String musicId, String musicName,
+      String musicType, String musicDate, String modeTitle) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => AnswerPhasePage(
@@ -287,6 +295,7 @@ class _ModesDeJeuPageState extends State<ModesDeJeuPage>
           initialMusicName: musicName,
           initialMusicType: musicType,
           initialMusicDate: musicDate,
+          modeTitle: modeTitle,
         ),
       ),
     );

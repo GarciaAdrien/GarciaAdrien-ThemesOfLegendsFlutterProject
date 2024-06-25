@@ -57,27 +57,8 @@ class _AccueilPageState extends State<AccueilPage> {
         widget.updateUser(updatedUser);
       });
     } catch (e) {
-      // Gérez les erreurs ici si nécessaire
       print("Erreur lors de la mise à jour de l'utilisateur: $e");
     }
-  }
-
-  void _showCountdownAndPlayMusic(
-      String musicId, String musicName, String musicType, String musicDate) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => AnswerPhasePage(
-          user: widget.user,
-          gameId: currentGameId ?? '',
-          currentRound: 1,
-          totalRounds: 0,
-          initialMusicId: musicId,
-          initialMusicName: musicName,
-          initialMusicType: musicType,
-          initialMusicDate: musicDate,
-        ),
-      ),
-    );
   }
 
   void _startNewGame() async {

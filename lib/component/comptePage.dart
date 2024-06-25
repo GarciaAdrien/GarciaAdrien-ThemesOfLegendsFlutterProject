@@ -1,3 +1,4 @@
+import 'package:blindtestlol_flutter_app/component/boutiquePage.dart';
 import 'package:blindtestlol_flutter_app/component/homePage.dart';
 import 'package:flutter/material.dart';
 import 'package:blindtestlol_flutter_app/services/userServices.dart';
@@ -150,6 +151,49 @@ class _ComptePageState extends State<ComptePage>
                             child: _buildGridItem(avatars[index]),
                           );
                         },
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                      height:
+                          16.0), // Espace entre la grille et le bouton Boutique
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BoutiquePage(
+                              user: widget.user,
+                              updateUser: (User p1) {},
+                            ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: AppColors.colorTextTitle,
+                        backgroundColor: AppColors.colorNoirHextech,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          side: BorderSide(
+                            color: AppColors.colorTextTitle,
+                            width: 2.0,
+                          ),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 20.0,
+                            horizontal:
+                                12.0), // Ajuster le padding horizontal ici
+                        minimumSize: Size(0,
+                            0), // Définir la taille minimale à zéro pour s'adapter au contenu
+                      ),
+                      child: Text(
+                        'Boutique',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'CustomFont2',
+                        ),
                       ),
                     ),
                   ),

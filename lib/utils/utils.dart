@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:blindtestlol_flutter_app/component/AnimatedCountDownCircle.dart';
 import 'package:flutter/material.dart';
 
 class AppColors {
@@ -112,31 +113,39 @@ class ProblemAssets {
   static const problem = 'assets/images/logo/problem.png';
 }
 
-class CountdownWidget extends StatefulWidget {
-  final int seconds;
+class CountdownTimer extends StatefulWidget {
+  final int duration;
   final VoidCallback onComplete;
 
-  const CountdownWidget({required this.seconds, required this.onComplete});
+  const CountdownTimer({
+    Key? key,
+    required this.duration,
+    required this.onComplete,
+  }) : super(key: key);
 
   @override
-  _CountdownWidgetState createState() => _CountdownWidgetState();
+  _CountdownTimerState createState() => _CountdownTimerState();
 }
 
-class _CountdownWidgetState extends State<CountdownWidget> {
+class _CountdownTimerState extends State<CountdownTimer> {
+  late int remainingTime;
   late Timer _timer;
-  late int currentSecond;
 
   @override
   void initState() {
     super.initState();
-    currentSecond = widget.seconds;
-    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      if (currentSecond == 0) {
+    remainingTime = widget.duration;
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (remainingTime == 0) {
         timer.cancel();
         widget.onComplete();
       } else {
         setState(() {
-          currentSecond--;
+          remainingTime--;
         });
       }
     });
@@ -150,22 +159,25 @@ class _CountdownWidgetState extends State<CountdownWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        '$currentSecond',
-        style: const TextStyle(
-          fontSize: 35, // Reduced font size
-          fontWeight: FontWeight.bold,
-          color: AppColors.colorText,
-          shadows: [
-            Shadow(
-              blurRadius: 10.0,
-              color: AppColors.colorNoirHextech,
-              offset: Offset(5.0, 5.0),
-            ),
-          ],
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        AnimatedCountdownCircle(
+          totalSeconds: widget.duration,
+          currentSecond: remainingTime,
         ),
-      ),
+        SizedBox(height: 10),
+        Text(
+          '$remainingTime',
+          style: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: remainingTime <= 5
+                ? Colors.red
+                : (remainingTime <= 10 ? Colors.orange : AppColors.colorText),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -227,64 +239,6 @@ class _ScoreComboCountdownWidgetState extends State<ScoreComboCountdownWidget> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class CountdownTimer extends StatefulWidget {
-  final int duration;
-  final VoidCallback onComplete;
-
-  const CountdownTimer({
-    Key? key,
-    required this.duration,
-    required this.onComplete,
-  }) : super(key: key);
-
-  @override
-  // ignore: library_private_types_in_public_api
-  _CountdownTimerState createState() => _CountdownTimerState();
-}
-
-class _CountdownTimerState extends State<CountdownTimer> {
-  late int remainingTime;
-  late Timer _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    remainingTime = widget.duration;
-    _startTimer();
-  }
-
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (remainingTime == 0) {
-        timer.cancel();
-        widget.onComplete();
-      } else {
-        setState(() {
-          remainingTime--;
-        });
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      '$remainingTime',
-      style: TextStyle(
-        fontSize: 30,
-        fontWeight: FontWeight.bold,
-        color: remainingTime <= 5 ? Colors.red : AppColors.colorText,
       ),
     );
   }
