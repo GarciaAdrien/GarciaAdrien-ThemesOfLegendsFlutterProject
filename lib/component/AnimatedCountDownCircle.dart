@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:blindtestlol_flutter_app/utils/utils%20copy.dart';
+import 'package:blindtestlol_flutter_app/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class AnimatedCountdownCircle extends StatelessWidget {
