@@ -151,8 +151,8 @@ class _HomePageState extends State<HomePage>
           // Background video
           Positioned.fill(
             child: Transform.translate(
-              offset: const Offset(0, -300),
-              child: BackgroundVideo(
+              offset: const Offset(0, -320),
+              child: const BackgroundVideo(
                 videoPath: Mp4Assets.imageBackgroundParticle,
                 fit: BoxFit.cover,
                 playbackSpeed: 2.5,

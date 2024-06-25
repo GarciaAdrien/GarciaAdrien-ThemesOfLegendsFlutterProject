@@ -87,7 +87,7 @@ class Mp4Assets {
   static const String imageBackgroundProfil3 =
       'assets/musicBackground/season.mp4';
   static const String imageBackgroundParticle =
-      'assets/musicBackground/particle.mp4';
+      'assets/images/logo/particle.mp4';
   static const String imageBackgroundGameOver =
       'assets/musicBackground/EndGame.mp4';
   static const String imageBackgroundClassement =
